@@ -384,10 +384,14 @@
                     
                     // Contact information
                     if (tags.phone) {
-                        popupContent += `<strong>📞 Phone:</strong> ${sanitizeText(tags.phone)}<br>`;
+                        const phoneText = sanitizeText(tags.phone);
+                        // Create tel link (remove spaces for the href)
+                        const phoneHref = phoneText.replace(/\s/g, '');
+                        popupContent += `<strong>📞 Phone:</strong> <a href="tel:${phoneHref}">${phoneText}</a><br>`;
                     }
                     if (tags.email) {
-                        popupContent += `<strong>✉️ Email:</strong> ${sanitizeText(tags.email)}<br>`;
+                        const emailText = sanitizeText(tags.email);
+                        popupContent += `<strong>✉️ Email:</strong> <a href="mailto:${emailText}">${emailText}</a><br>`;
                     }
                     if (tags.website) {
                         const safeUrl = sanitizeUrl(tags.website);
