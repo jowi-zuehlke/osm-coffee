@@ -1,6 +1,8 @@
 # osm-coffee
 Map of ☕️ hotspots
 
+**[🌐 Live Preview](https://jowi-zuehlke.github.io/osm-coffee/)**
+
 ## Overview
 A single page application that displays an interactive map highlighting cafes and roasteries using OpenStreetMap data.
 
