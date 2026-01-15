@@ -176,6 +176,18 @@
         .popup-container {
             max-width: 300px;
         }
+        
+        .popup-container .popup-title {
+            font-size: 16px;
+        }
+        
+        .popup-container .popup-type {
+            color: #666;
+        }
+        
+        .popup-container .popup-osm-ref {
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -360,8 +372,8 @@
                     
                     // Create popup content with sanitized data
                     let popupContent = `<div class="popup-container">`;
-                    popupContent += `<strong style="font-size: 16px;">${name}</strong><br>`;
-                    popupContent += `<em style="color: #666;">${typeLabel}</em><br><br>`;
+                    popupContent += `<strong class="popup-title">${name}</strong><br>`;
+                    popupContent += `<em class="popup-type">${typeLabel}</em><br><br>`;
                     
                     // Address information
                     if (tags['addr:street'] || tags['addr:city']) {
@@ -391,7 +403,7 @@
                         const phoneText = sanitizeText(tags.phone);
                         // Create tel link - keep digits, plus sign, spaces, hyphens, and parentheses
                         // but remove them for the href (tel: protocol works better with just digits and +)
-                        const phoneHref = phoneText.replace(/[^\d+]/g, '');
+                        const phoneHref = phoneText.replace(/[^0-9+]/g, '');
                         // Only create link if we have at least 3 actual digits
                         const digitCount = (phoneHref.match(/\d/g) || []).length;
                         if (digitCount >= 3) {
@@ -471,18 +483,17 @@
                     }
                     
                     // OSM reference
-                    popupContent += `<br><small style="color: #888;">`;
                     // Validate OSM element type and ID before using in URL
                     const validTypes = ['node', 'way', 'relation'];
                     const elementType = validTypes.includes(element.type) ? element.type : 'node';
                     // Validate ID - convert to number and check if it's a valid integer
                     const elementIdNum = parseInt(element.id, 10);
-                    const elementId = Number.isInteger(elementIdNum) && elementIdNum > 0 ? elementIdNum : '';
-                    if (elementId) {
-                        popupContent += `<strong>OSM ID:</strong> ${sanitizeText(elementType)}/${sanitizeText(String(elementId))} `;
-                        popupContent += `<a href="https://www.openstreetmap.org/${elementType}/${elementId}" target="_blank" rel="noopener noreferrer">[View on OSM]</a>`;
+                    if (Number.isInteger(elementIdNum) && elementIdNum > 0) {
+                        popupContent += `<br><small class="popup-osm-ref">`;
+                        popupContent += `<strong>OSM ID:</strong> ${sanitizeText(elementType)}/${sanitizeText(String(elementIdNum))} `;
+                        popupContent += `<a href="https://www.openstreetmap.org/${elementType}/${elementIdNum}" target="_blank" rel="noopener noreferrer">[View on OSM]</a>`;
+                        popupContent += `</small>`;
                     }
-                    popupContent += `</small>`;
                     popupContent += `</div>`;
                     
                     // Add marker to coffee markers layer group
