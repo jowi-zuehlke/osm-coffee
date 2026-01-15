@@ -373,9 +373,10 @@
                     });
                     
                     // Add marker at user's location
+                    const accuracyText = accuracy ? `<br>Accuracy: ${Math.round(accuracy)} meters` : '';
                     userLocationMarker = L.marker([latitude, longitude], { icon: userIcon })
                         .addTo(map)
-                        .bindPopup(`<strong>Your Location</strong><br>Accuracy: ${Math.round(accuracy)} meters`)
+                        .bindPopup(`<strong>Your Location</strong>${accuracyText}`)
                         .openPopup();
                     
                     // Center map on user's location
