@@ -392,8 +392,9 @@
                         // Create tel link - keep digits, plus sign, spaces, hyphens, and parentheses
                         // but remove them for the href (tel: protocol works better with just digits and +)
                         const phoneHref = phoneText.replace(/[^\d+]/g, '');
-                        // Only create link if we have a valid phone number (at least 3 digits)
-                        if (phoneHref.length >= 3) {
+                        // Only create link if we have at least 3 actual digits
+                        const digitCount = (phoneHref.match(/\d/g) || []).length;
+                        if (digitCount >= 3) {
                             popupContent += `<strong>📞 Phone:</strong> <a href="tel:${phoneHref}">${phoneText}</a><br>`;
                         } else {
                             popupContent += `<strong>📞 Phone:</strong> ${phoneText}<br>`;
@@ -401,8 +402,8 @@
                     }
                     if (tags.email) {
                         const emailText = sanitizeText(tags.email);
-                        // Robust email validation regex
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        // Robust email validation regex with proper character restrictions
+                        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                         if (emailRegex.test(emailText)) {
                             popupContent += `<strong>✉️ Email:</strong> <a href="mailto:${emailText}">${emailText}</a><br>`;
                         } else {
@@ -474,7 +475,9 @@
                     // Validate OSM element type and ID before using in URL
                     const validTypes = ['node', 'way', 'relation'];
                     const elementType = validTypes.includes(element.type) ? element.type : 'node';
-                    const elementId = Number.isInteger(element.id) ? element.id : '';
+                    // Validate ID - convert to number and check if it's a valid integer
+                    const elementIdNum = parseInt(element.id, 10);
+                    const elementId = Number.isInteger(elementIdNum) && elementIdNum > 0 ? elementIdNum : '';
                     if (elementId) {
                         popupContent += `<strong>OSM ID:</strong> ${sanitizeText(elementType)}/${sanitizeText(String(elementId))} `;
                         popupContent += `<a href="https://www.openstreetmap.org/${elementType}/${elementId}" target="_blank" rel="noopener noreferrer">[View on OSM]</a>`;
