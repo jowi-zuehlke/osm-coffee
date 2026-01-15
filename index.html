@@ -172,6 +172,28 @@
             popupAnchor: [0, -16]
         });
         
+        // Function to sanitize text content to prevent XSS
+        function sanitizeText(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Function to validate and sanitize URLs
+        function sanitizeUrl(url) {
+            if (!url) return null;
+            try {
+                const urlObj = new URL(url);
+                // Only allow http and https protocols
+                if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
+                    return urlObj.href;
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        }
+        
         // Function to fetch coffee locations from Overpass API (OpenStreetMap data)
         async function fetchCoffeeLocations() {
             const loading = document.getElementById('loading');
@@ -225,26 +247,29 @@
                     }
                     
                     const tags = element.tags || {};
-                    const name = tags.name || 'Unnamed';
+                    const name = sanitizeText(tags.name || 'Unnamed');
                     const isRoastery = tags.craft === 'roaster';
                     const icon = isRoastery ? roasteryIcon : cafeIcon;
                     
-                    // Create popup content
+                    // Create popup content with sanitized data
                     let popupContent = `<strong>${name}</strong><br>`;
                     popupContent += isRoastery ? 'Type: Roastery 🔥<br>' : 'Type: Cafe ☕<br>';
                     
                     if (tags.opening_hours) {
-                        popupContent += `Hours: ${tags.opening_hours}<br>`;
+                        popupContent += `Hours: ${sanitizeText(tags.opening_hours)}<br>`;
                     }
                     if (tags['addr:street']) {
-                        popupContent += `${tags['addr:street']}`;
+                        popupContent += sanitizeText(tags['addr:street']);
                         if (tags['addr:housenumber']) {
-                            popupContent += ` ${tags['addr:housenumber']}`;
+                            popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
                         }
                         popupContent += '<br>';
                     }
                     if (tags.website) {
-                        popupContent += `<a href="${tags.website}" target="_blank">Website</a><br>`;
+                        const safeUrl = sanitizeUrl(tags.website);
+                        if (safeUrl) {
+                            popupContent += `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
+                        }
                     }
                     
                     // Add marker to coffee markers layer group
