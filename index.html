@@ -240,16 +240,17 @@
             let formatted = openingHours;
             
             // Replace common abbreviations with more readable versions
-            formatted = formatted.replace(/Mo/g, 'Mon');
-            formatted = formatted.replace(/Tu/g, 'Tue');
-            formatted = formatted.replace(/We/g, 'Wed');
-            formatted = formatted.replace(/Th/g, 'Thu');
-            formatted = formatted.replace(/Fr/g, 'Fri');
-            formatted = formatted.replace(/Sa/g, 'Sat');
-            formatted = formatted.replace(/Su/g, 'Sun');
+            // Use word boundaries to avoid replacing parts of longer words
+            formatted = formatted.replace(/\bMo\b/g, 'Mon');
+            formatted = formatted.replace(/\bTu\b/g, 'Tue');
+            formatted = formatted.replace(/\bWe\b/g, 'Wed');
+            formatted = formatted.replace(/\bTh\b/g, 'Thu');
+            formatted = formatted.replace(/\bFr\b/g, 'Fri');
+            formatted = formatted.replace(/\bSa\b/g, 'Sat');
+            formatted = formatted.replace(/\bSu\b/g, 'Sun');
             
-            // Add spaces after semicolons for better readability
-            formatted = formatted.replace(/;/g, '; ');
+            // Add spaces after semicolons if not already present
+            formatted = formatted.replace(/;\s*/g, '; ');
             
             // Replace multiple spaces with single space
             formatted = formatted.replace(/\s+/g, ' ').trim();
