@@ -95,6 +95,10 @@
             background: #D2691E;
         }
         
+        .shop-icon {
+            background: #228B22;
+        }
+        
         .loading {
             position: absolute;
             top: 90px;
@@ -132,6 +136,10 @@
             <span>Cafe</span>
         </div>
         <div class="legend-item">
+            <div class="legend-icon shop-icon">🏪</div>
+            <span>Coffee Shop</span>
+        </div>
+        <div class="legend-item">
             <div class="legend-icon roastery-icon">🔥</div>
             <span>Roastery</span>
         </div>
@@ -166,6 +174,14 @@
         
         const roasteryIcon = L.divIcon({
             html: '<div style="background: #D2691E; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🔥</div>',
+            className: 'custom-icon',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
+        });
+        
+        const shopIcon = L.divIcon({
+            html: '<div style="background: #228B22; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🏪</div>',
             className: 'custom-icon',
             iconSize: [32, 32],
             iconAnchor: [16, 16],
@@ -259,12 +275,26 @@
                     
                     const tags = element.tags || {};
                     const name = sanitizeText(tags.name || 'Unnamed');
-                    const isRoastery = tags.craft === 'roaster';
-                    const icon = isRoastery ? roasteryIcon : cafeIcon;
+                    
+                    // Determine the type and icon based on OSM tags
+                    let type, icon, typeLabel;
+                    if (tags.craft === 'roaster') {
+                        type = 'roastery';
+                        icon = roasteryIcon;
+                        typeLabel = 'Roastery 🔥';
+                    } else if (tags.shop === 'coffee') {
+                        type = 'shop';
+                        icon = shopIcon;
+                        typeLabel = 'Coffee Shop 🏪';
+                    } else {
+                        type = 'cafe';
+                        icon = cafeIcon;
+                        typeLabel = 'Cafe ☕';
+                    }
                     
                     // Create popup content with sanitized data
                     let popupContent = `<strong>${name}</strong><br>`;
-                    popupContent += isRoastery ? 'Type: Roastery 🔥<br>' : 'Type: Cafe ☕<br>';
+                    popupContent += `Type: ${typeLabel}<br>`;
                     
                     if (tags.opening_hours) {
                         popupContent += `Hours: ${sanitizeText(tags.opening_hours)}<br>`;
