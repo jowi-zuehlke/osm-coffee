@@ -143,7 +143,7 @@
             crossorigin=""></script>
     
     <script>
-        // Initialize the map - centered on Europe (can be changed based on user location)
+        // Initialize the map - centered on Paris, France (default location, will update to user's location if available)
         const map = L.map('map').setView([48.8566, 2.3522], 13);
         
         // Add OpenStreetMap tile layer
@@ -151,6 +151,9 @@
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
         }).addTo(map);
+        
+        // Layer group for coffee markers (so we can clear them without affecting the base map)
+        const coffeeMarkers = L.layerGroup().addTo(map);
         
         // Custom icons for cafes and roasteries
         const cafeIcon = L.divIcon({
@@ -203,12 +206,8 @@
                 
                 const data = await response.json();
                 
-                // Clear existing markers
-                map.eachLayer(layer => {
-                    if (layer instanceof L.Marker) {
-                        map.removeLayer(layer);
-                    }
-                });
+                // Clear existing coffee markers (not the base map tiles)
+                coffeeMarkers.clearLayers();
                 
                 // Add markers for each location
                 data.elements.forEach(element => {
@@ -248,9 +247,9 @@
                         popupContent += `<a href="${tags.website}" target="_blank">Website</a><br>`;
                     }
                     
-                    // Add marker to map
+                    // Add marker to coffee markers layer group
                     L.marker([lat, lon], { icon: icon })
-                        .addTo(map)
+                        .addTo(coffeeMarkers)
                         .bindPopup(popupContent);
                 });
                 
@@ -279,8 +278,15 @@
             fetchCoffeeLocations();
         }
         
-        // Reload coffee locations when map is moved
-        map.on('moveend', fetchCoffeeLocations);
+        // Debounce function to prevent excessive API calls
+        let debounceTimer;
+        function debouncedFetchCoffeeLocations() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchCoffeeLocations, 500);
+        }
+        
+        // Reload coffee locations when map is moved (debounced to reduce API calls)
+        map.on('moveend', debouncedFetchCoffeeLocations);
     </script>
 </body>
 </html>
