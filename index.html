@@ -279,7 +279,8 @@
                     if (tags.website) {
                         const safeUrl = sanitizeUrl(tags.website);
                         if (safeUrl) {
-                            popupContent += `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
+                            // Use sanitizeText on the URL for extra safety in HTML context
+                            popupContent += `<a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
                         }
                     }
                     
