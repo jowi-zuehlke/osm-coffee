@@ -111,6 +111,38 @@
         .loading.active {
             display: block;
         }
+        
+        .location-button {
+            position: absolute;
+            top: 90px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: background-color 0.2s;
+        }
+        
+        .location-button:hover {
+            background-color: #f4f4f4;
+        }
+        
+        .location-button:active {
+            background-color: #e8e8e8;
+        }
+        
+        .location-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -122,6 +154,8 @@
     <div class="loading" id="loading">
         Loading coffee locations...
     </div>
+    
+    <button class="location-button" id="locationBtn" title="Show my location">📍</button>
     
     <div id="map"></div>
     
@@ -154,6 +188,9 @@
         
         // Layer group for coffee markers (so we can clear them without affecting the base map)
         const coffeeMarkers = L.layerGroup().addTo(map);
+        
+        // Variable to store user location marker
+        let userLocationMarker = null;
         
         // Custom icons for cafes and roasteries
         const cafeIcon = L.divIcon({
@@ -303,6 +340,82 @@
                 loading.classList.remove('active');
             }
         }
+        
+        // Function to handle user location button click
+        function showUserLocation() {
+            const locationBtn = document.getElementById('locationBtn');
+            
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+            
+            // Disable button and show loading state
+            locationBtn.disabled = true;
+            locationBtn.textContent = '⏳';
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
+                    // Remove existing user location marker if any
+                    if (userLocationMarker) {
+                        map.removeLayer(userLocationMarker);
+                    }
+                    
+                    // Create custom icon for user location
+                    const userIcon = L.divIcon({
+                        html: '<div style="background: #4285F4; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">📍</div>',
+                        className: 'user-location-icon',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16],
+                        popupAnchor: [0, -16]
+                    });
+                    
+                    // Add marker at user's location
+                    userLocationMarker = L.marker([latitude, longitude], { icon: userIcon })
+                        .addTo(map)
+                        .bindPopup(`<strong>Your Location</strong><br>Accuracy: ${Math.round(accuracy)} meters`)
+                        .openPopup();
+                    
+                    // Center map on user's location
+                    map.setView([latitude, longitude], 15);
+                    
+                    // Re-enable button
+                    locationBtn.disabled = false;
+                    locationBtn.textContent = '📍';
+                },
+                error => {
+                    let message = 'Unable to retrieve your location';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = 'Location access denied. Please allow location access in your browser.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = 'Location information is unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            message = 'Location request timed out.';
+                            break;
+                    }
+                    
+                    alert(message);
+                    
+                    // Re-enable button
+                    locationBtn.disabled = false;
+                    locationBtn.textContent = '📍';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Add click event listener to location button
+        document.getElementById('locationBtn').addEventListener('click', showUserLocation);
         
         // Try to get user's location
         if (navigator.geolocation) {
