@@ -232,6 +232,31 @@
             return div.innerHTML;
         }
         
+        // Function to format opening hours for better readability
+        function formatOpeningHours(openingHours) {
+            if (!openingHours) return null;
+            
+            // Common patterns to improve readability
+            let formatted = openingHours;
+            
+            // Replace common abbreviations with more readable versions
+            formatted = formatted.replace(/Mo/g, 'Mon');
+            formatted = formatted.replace(/Tu/g, 'Tue');
+            formatted = formatted.replace(/We/g, 'Wed');
+            formatted = formatted.replace(/Th/g, 'Thu');
+            formatted = formatted.replace(/Fr/g, 'Fri');
+            formatted = formatted.replace(/Sa/g, 'Sat');
+            formatted = formatted.replace(/Su/g, 'Sun');
+            
+            // Add spaces after semicolons for better readability
+            formatted = formatted.replace(/;/g, '; ');
+            
+            // Replace multiple spaces with single space
+            formatted = formatted.replace(/\s+/g, ' ').trim();
+            
+            return formatted;
+        }
+        
         // Function to validate and sanitize URLs
         function sanitizeUrl(url) {
             if (!url) return null;
@@ -331,12 +356,14 @@
                     
                     // Create popup content with sanitized data
                     let popupContent = `<strong>${name}</strong><br>`;
-                    popupContent += `Type: ${typeLabel}<br>`;
+                    popupContent += `<em>${typeLabel}</em><br>`;
                     
                     if (tags.opening_hours) {
-                        popupContent += `Hours: ${sanitizeText(tags.opening_hours)}<br>`;
+                        const formattedHours = formatOpeningHours(tags.opening_hours);
+                        popupContent += `<br>🕒 <strong>Hours:</strong><br>${sanitizeText(formattedHours)}<br>`;
                     }
                     if (tags['addr:street']) {
+                        popupContent += '<br>📍 ';
                         popupContent += sanitizeText(tags['addr:street']);
                         if (tags['addr:housenumber']) {
                             popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
@@ -347,7 +374,7 @@
                         const safeUrl = sanitizeUrl(tags.website);
                         if (safeUrl) {
                             // Use sanitizeText on the URL for extra safety in HTML context
-                            popupContent += `<a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
+                            popupContent += `<br>🔗 <a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
                         }
                     }
                     
