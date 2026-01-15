@@ -172,6 +172,10 @@
         .leaflet-popup-content a:hover {
             text-decoration: underline;
         }
+        
+        .popup-container {
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -355,7 +359,7 @@
                     }
                     
                     // Create popup content with sanitized data
-                    let popupContent = `<div style="max-width: 300px;">`;
+                    let popupContent = `<div class="popup-container">`;
                     popupContent += `<strong style="font-size: 16px;">${name}</strong><br>`;
                     popupContent += `<em style="color: #666;">${typeLabel}</em><br><br>`;
                     
@@ -385,13 +389,19 @@
                     // Contact information
                     if (tags.phone) {
                         const phoneText = sanitizeText(tags.phone);
-                        // Create tel link (remove spaces for the href)
-                        const phoneHref = phoneText.replace(/\s/g, '');
+                        // Create tel link - keep only digits and plus sign for international numbers
+                        const phoneHref = phoneText.replace(/[^\d+]/g, '');
                         popupContent += `<strong>📞 Phone:</strong> <a href="tel:${phoneHref}">${phoneText}</a><br>`;
                     }
                     if (tags.email) {
                         const emailText = sanitizeText(tags.email);
-                        popupContent += `<strong>✉️ Email:</strong> <a href="mailto:${emailText}">${emailText}</a><br>`;
+                        // Basic email validation (simple check for @ and domain)
+                        if (emailText.includes('@') && emailText.includes('.')) {
+                            popupContent += `<strong>✉️ Email:</strong> <a href="mailto:${emailText}">${emailText}</a><br>`;
+                        } else {
+                            // Display as plain text if invalid format
+                            popupContent += `<strong>✉️ Email:</strong> ${emailText}<br>`;
+                        }
                     }
                     if (tags.website) {
                         const safeUrl = sanitizeUrl(tags.website);
