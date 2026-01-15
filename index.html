@@ -65,6 +65,7 @@
             text-align: center;
             color: #999;
             font-size: 16px;
+            padding: 20px;
         }
         
         #details-content {
@@ -241,9 +242,7 @@
             <p>Discover cafes and roasteries near you</p>
         </div>
         <div id="details" class="empty">
-            <div style="padding: 20px;">
-                <p>👆 Click on a marker on the map to see cafe details</p>
-            </div>
+            <p>👆 Click on a marker on the map to see cafe details</p>
         </div>
     </div>
     
@@ -361,7 +360,7 @@
                 if (safeUrl) {
                     detailsHTML += '<div class="detail-row">';
                     detailsHTML += '<span class="detail-label">Website:</span>';
-                    detailsHTML += `<span class="detail-value"><a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Visit Website</a></span>`;
+                    detailsHTML += `<span class="detail-value"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Visit Website</a></span>`;
                     detailsHTML += '</div>';
                 }
             }
