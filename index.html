@@ -21,41 +21,107 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             height: 100vh;
             overflow: hidden;
+            display: flex;
         }
         
-        #map {
+        #sidebar {
+            width: 35%;
             height: 100vh;
-            width: 100%;
+            background: #f5f5f5;
+            overflow-y: auto;
+            border-right: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
         }
         
-        .header {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
+        #sidebar-header {
             background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 20px;
+            border-bottom: 2px solid #ddd;
             text-align: center;
         }
         
-        .header h1 {
+        #sidebar-header h1 {
             font-size: 24px;
             color: #6F4E37;
             margin-bottom: 5px;
         }
         
-        .header p {
+        #sidebar-header p {
             font-size: 14px;
             color: #666;
         }
         
+        #details {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        #details.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+            padding: 20px;
+        }
+        
+        #details-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #details-content h2 {
+            color: #6F4E37;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        #details-content .detail-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        #details-content .detail-label {
+            font-weight: bold;
+            color: #666;
+            min-width: 80px;
+            margin-right: 10px;
+        }
+        
+        #details-content .detail-value {
+            color: #333;
+        }
+        
+        #details-content a {
+            color: #6F4E37;
+            text-decoration: none;
+        }
+        
+        #details-content a:hover {
+            text-decoration: underline;
+        }
+        
+        #map-container {
+            flex: 1;
+            position: relative;
+            height: 100vh;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
         .legend {
             position: absolute;
-            bottom: 30px;
-            left: 10px;
+            bottom: 20px;
+            right: 20px;
             z-index: 1000;
             background: white;
             padding: 15px;
@@ -101,9 +167,8 @@
         
         .loading {
             position: absolute;
-            top: 90px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 20px;
+            right: 20px;
             z-index: 1000;
             background: white;
             padding: 10px 20px;
@@ -118,8 +183,8 @@
         
         .location-button {
             position: absolute;
-            top: 90px;
-            right: 10px;
+            top: 70px;
+            right: 20px;
             z-index: 1000;
             background: white;
             border: 2px solid rgba(0,0,0,0.2);
@@ -148,75 +213,66 @@
             opacity: 0.6;
         }
         
-        /* Leaflet popup styling */
-        .leaflet-popup-content-wrapper {
-            border-radius: 8px;
-        }
-        
-        .leaflet-popup-content {
-            margin: 15px;
-            line-height: 1.6;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .leaflet-popup-content strong {
-            color: #333;
-        }
-        
-        .leaflet-popup-content a {
-            color: #6F4E37;
-            text-decoration: none;
-        }
-        
-        .leaflet-popup-content a:hover {
-            text-decoration: underline;
-        }
-        
-        .popup-container {
-            max-width: 300px;
-        }
-        
-        .popup-container .popup-title {
-            font-size: 16px;
-        }
-        
-        .popup-container .popup-type {
-            color: #666;
-        }
-        
-        .popup-container .popup-osm-ref {
-            color: #888;
+        /* Responsive design for mobile/tablet */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                width: 100%;
+                height: 40vh;
+                border-right: none;
+                border-bottom: 2px solid #ddd;
+            }
+            
+            #map-container {
+                height: 60vh;
+            }
+            
+            .legend {
+                bottom: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>☕ OSM Coffee Hotspots</h1>
-        <p>Discover cafes and roasteries near you</p>
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <h1>☕ OSM Coffee Hotspots</h1>
+            <p>Discover cafes and roasteries near you</p>
+        </div>
+        <div id="details" class="empty">
+            <p>👆 Click on a marker on the map to see cafe details</p>
+        </div>
     </div>
     
-    <div class="loading" id="loading">
-        Loading coffee locations...
-    </div>
-    
-    <button class="location-button" id="locationBtn" title="Show my location">📍</button>
-    
-    <div id="map"></div>
-    
-    <div class="legend">
-        <h3>Legend</h3>
-        <div class="legend-item">
-            <div class="legend-icon cafe-icon">☕</div>
-            <span>Cafe</span>
+    <div id="map-container">
+        <div class="loading" id="loading">
+            Loading coffee locations...
         </div>
-        <div class="legend-item">
-            <div class="legend-icon shop-icon">🏪</div>
-            <span>Coffee Shop</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-icon roastery-icon">🔥</div>
-            <span>Roastery</span>
+        
+        <button class="location-button" id="locationBtn" title="Show my location">📍</button>
+        
+        <div id="map"></div>
+        
+        <div class="legend">
+            <h3>Legend</h3>
+            <div class="legend-item">
+                <div class="legend-icon cafe-icon">☕</div>
+                <span>Cafe</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon shop-icon">🏪</div>
+                <span>Coffee Shop</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon roastery-icon">🔥</div>
+                <span>Roastery</span>
+            </div>
         </div>
     </div>
     
@@ -265,6 +321,221 @@
             iconAnchor: [16, 16],
             popupAnchor: [0, -16]
         });
+        
+        // Function to display cafe details in sidebar
+        function showCafeDetails(element) {
+            const tags = element.tags || {};
+            const name = tags.name || 'Unnamed';
+            
+            // Determine the type label based on OSM tags
+            let typeLabel;
+            if (tags.craft === 'roaster') {
+                typeLabel = 'Roastery 🔥';
+            } else if (tags.shop === 'coffee') {
+                typeLabel = 'Coffee Shop 🏪';
+            } else {
+                typeLabel = 'Cafe ☕';
+            }
+            
+            const detailsDiv = document.getElementById('details');
+            detailsDiv.classList.remove('empty');
+            
+            let detailsHTML = '<div id="details-content">';
+            detailsHTML += `<h2>${sanitizeText(name)}</h2>`;
+            
+            detailsHTML += '<div class="detail-row">';
+            detailsHTML += '<span class="detail-label">Type:</span>';
+            detailsHTML += `<span class="detail-value">${typeLabel}</span>`;
+            detailsHTML += '</div>';
+            
+            // Address information
+            if (tags['addr:street'] || tags['addr:city']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">📍 Address:</span>';
+                detailsHTML += '<span class="detail-value">';
+                if (tags['addr:street']) {
+                    detailsHTML += sanitizeText(tags['addr:street']);
+                    if (tags['addr:housenumber']) {
+                        detailsHTML += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                    }
+                }
+                if (tags['addr:city']) {
+                    detailsHTML += `, ${sanitizeText(tags['addr:city'])}`;
+                }
+                if (tags['addr:postcode']) {
+                    detailsHTML += ` ${sanitizeText(tags['addr:postcode'])}`;
+                }
+                detailsHTML += '</span>';
+                detailsHTML += '</div>';
+            }
+            
+            // Opening hours
+            if (tags.opening_hours) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🕒 Hours:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.opening_hours)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Contact information
+            if (tags.phone) {
+                const phoneText = sanitizeText(tags.phone);
+                const phoneHref = phoneText.replace(/[^0-9+]/g, '');
+                const digitCount = (phoneHref.match(/\d/g) || []).length;
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">📞 Phone:</span>';
+                if (digitCount >= 3) {
+                    detailsHTML += `<span class="detail-value"><a href="tel:${phoneHref}">${phoneText}</a></span>`;
+                } else {
+                    detailsHTML += `<span class="detail-value">${phoneText}</span>`;
+                }
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.email) {
+                const emailText = sanitizeText(tags.email);
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">✉️ Email:</span>';
+                if (emailRegex.test(emailText)) {
+                    detailsHTML += `<span class="detail-value"><a href="mailto:${emailText}">${emailText}</a></span>`;
+                } else {
+                    detailsHTML += `<span class="detail-value">${emailText}</span>`;
+                }
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.website) {
+                const safeUrl = sanitizeUrl(tags.website);
+                if (safeUrl) {
+                    detailsHTML += '<div class="detail-row">';
+                    detailsHTML += '<span class="detail-label">🌐 Website:</span>';
+                    detailsHTML += `<span class="detail-value"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Visit</a></span>`;
+                    detailsHTML += '</div>';
+                }
+            }
+            
+            // Cuisine and diet options
+            if (tags.cuisine) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🍽️ Cuisine:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.cuisine)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['diet:vegetarian']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🥗 Vegetarian:</span>';
+                detailsHTML += `<span class="detail-value">${tags['diet:vegetarian'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:vegetarian'])}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['diet:vegan']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🌱 Vegan:</span>';
+                detailsHTML += `<span class="detail-value">${tags['diet:vegan'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:vegan'])}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Amenities
+            if (tags.outdoor_seating) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🪑 Outdoor:</span>';
+                detailsHTML += `<span class="detail-value">${tags.outdoor_seating === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.takeaway) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🥤 Takeaway:</span>';
+                detailsHTML += `<span class="detail-value">${tags.takeaway === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.delivery) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🚚 Delivery:</span>';
+                detailsHTML += `<span class="detail-value">${tags.delivery === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.internet_access || tags.wifi) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">📶 WiFi:</span>';
+                const wifiValue = tags.internet_access || tags.wifi;
+                detailsHTML += `<span class="detail-value">${wifiValue === 'yes' || wifiValue === 'free' || wifiValue === 'wlan' ? 'Yes ✓' : sanitizeText(wifiValue)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['internet_access:fee']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💰 WiFi Fee:</span>';
+                detailsHTML += `<span class="detail-value">${tags['internet_access:fee'] === 'no' ? 'Free' : 'Paid'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Accessibility
+            if (tags.wheelchair) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">♿ Wheelchair:</span>';
+                detailsHTML += `<span class="detail-value">${tags.wheelchair === 'yes' ? 'Yes ✓' : tags.wheelchair === 'no' ? 'No' : sanitizeText(tags.wheelchair)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Payment methods
+            if (tags['payment:cash']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💵 Cash:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:cash'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['payment:cards']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💳 Cards:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:cards'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['payment:credit_cards']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🏦 Credit Cards:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:credit_cards'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Additional info
+            if (tags.capacity) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">👥 Capacity:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.capacity)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.smoking) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🚬 Smoking:</span>';
+                detailsHTML += `<span class="detail-value">${tags.smoking === 'no' ? 'No' : sanitizeText(tags.smoking)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // OSM reference
+            const validTypes = ['node', 'way', 'relation'];
+            const elementType = validTypes.includes(element.type) ? element.type : 'node';
+            if (/^\d+$/.test(String(element.id))) {
+                const elementIdNum = parseInt(element.id, 10);
+                if (elementIdNum > 0) {
+                    detailsHTML += '<div class="detail-row">';
+                    detailsHTML += '<span class="detail-label">OSM:</span>';
+                    detailsHTML += `<span class="detail-value"><a href="https://www.openstreetmap.org/${elementType}/${elementIdNum}" target="_blank" rel="noopener noreferrer">${elementType}/${elementIdNum}</a></span>`;
+                    detailsHTML += '</div>';
+                }
+            }
+            
+            detailsHTML += '</div>';
+            
+            detailsDiv.innerHTML = detailsHTML;
+        }
         
         // Function to sanitize text content to prevent XSS
         function sanitizeText(text) {
@@ -352,157 +623,21 @@
                     }
                     
                     const tags = element.tags || {};
-                    const name = sanitizeText(tags.name || 'Unnamed');
                     
-                    // Determine the type and icon based on OSM tags
-                    let type, icon, typeLabel;
+                    // Determine the icon based on OSM tags
+                    let icon;
                     if (tags.craft === 'roaster') {
-                        type = 'roastery';
                         icon = roasteryIcon;
-                        typeLabel = 'Roastery 🔥';
                     } else if (tags.shop === 'coffee') {
-                        type = 'shop';
                         icon = shopIcon;
-                        typeLabel = 'Coffee Shop 🏪';
                     } else {
-                        type = 'cafe';
                         icon = cafeIcon;
-                        typeLabel = 'Cafe ☕';
                     }
                     
-                    // Create popup content with sanitized data
-                    let popupContent = `<div class="popup-container">`;
-                    popupContent += `<strong class="popup-title">${name}</strong><br>`;
-                    popupContent += `<em class="popup-type">${typeLabel}</em><br><br>`;
-                    
-                    // Address information
-                    if (tags['addr:street'] || tags['addr:city']) {
-                        popupContent += `<strong>📍 Address:</strong> `;
-                        if (tags['addr:street']) {
-                            popupContent += sanitizeText(tags['addr:street']);
-                            if (tags['addr:housenumber']) {
-                                popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
-                            }
-                        }
-                        if (tags['addr:city']) {
-                            popupContent += `, ${sanitizeText(tags['addr:city'])}`;
-                        }
-                        if (tags['addr:postcode']) {
-                            popupContent += ` ${sanitizeText(tags['addr:postcode'])}`;
-                        }
-                        popupContent += '<br>';
-                    }
-                    
-                    // Opening hours
-                    if (tags.opening_hours) {
-                        popupContent += `<strong>🕒 Hours:</strong> ${sanitizeText(tags.opening_hours)}<br>`;
-                    }
-                    
-                    // Contact information
-                    if (tags.phone) {
-                        const phoneText = sanitizeText(tags.phone);
-                        // Create tel link by removing all non-numeric characters except plus sign
-                        // Display shows original format, href uses cleaned version for tel: protocol
-                        const phoneHref = phoneText.replace(/[^0-9+]/g, '');
-                        // Only create link if we have at least 3 actual digits
-                        const digitCount = (phoneHref.match(/\d/g) || []).length;
-                        if (digitCount >= 3) {
-                            popupContent += `<strong>📞 Phone:</strong> <a href="tel:${phoneHref}">${phoneText}</a><br>`;
-                        } else {
-                            popupContent += `<strong>📞 Phone:</strong> ${phoneText}<br>`;
-                        }
-                    }
-                    if (tags.email) {
-                        const emailText = sanitizeText(tags.email);
-                        // Robust email validation regex - prevents consecutive dots and other malformed patterns
-                        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
-                        if (emailRegex.test(emailText)) {
-                            popupContent += `<strong>✉️ Email:</strong> <a href="mailto:${emailText}">${emailText}</a><br>`;
-                        } else {
-                            // Display as plain text if invalid format
-                            popupContent += `<strong>✉️ Email:</strong> ${emailText}<br>`;
-                        }
-                    }
-                    if (tags.website) {
-                        const safeUrl = sanitizeUrl(tags.website);
-                        if (safeUrl) {
-                            popupContent += `<strong>🌐 Website:</strong> <a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Link</a><br>`;
-                        }
-                    }
-                    
-                    // Cuisine and diet options
-                    if (tags.cuisine) {
-                        popupContent += `<strong>🍽️ Cuisine:</strong> ${sanitizeText(tags.cuisine)}<br>`;
-                    }
-                    if (tags['diet:vegetarian']) {
-                        popupContent += `<strong>🥗 Vegetarian:</strong> ${sanitizeText(tags['diet:vegetarian'])}<br>`;
-                    }
-                    if (tags['diet:vegan']) {
-                        popupContent += `<strong>🌱 Vegan:</strong> ${sanitizeText(tags['diet:vegan'])}<br>`;
-                    }
-                    
-                    // Amenities
-                    if (tags.outdoor_seating) {
-                        popupContent += `<strong>🪑 Outdoor Seating:</strong> ${sanitizeText(tags.outdoor_seating)}<br>`;
-                    }
-                    if (tags.takeaway) {
-                        popupContent += `<strong>🥤 Takeaway:</strong> ${sanitizeText(tags.takeaway)}<br>`;
-                    }
-                    if (tags.delivery) {
-                        popupContent += `<strong>🚚 Delivery:</strong> ${sanitizeText(tags.delivery)}<br>`;
-                    }
-                    if (tags.internet_access) {
-                        popupContent += `<strong>📶 WiFi:</strong> ${sanitizeText(tags.internet_access)}<br>`;
-                    }
-                    if (tags['internet_access:fee']) {
-                        popupContent += `<strong>💰 WiFi Fee:</strong> ${sanitizeText(tags['internet_access:fee'])}<br>`;
-                    }
-                    
-                    // Accessibility
-                    if (tags.wheelchair) {
-                        popupContent += `<strong>♿ Wheelchair Access:</strong> ${sanitizeText(tags.wheelchair)}<br>`;
-                    }
-                    
-                    // Payment methods
-                    if (tags['payment:cash']) {
-                        popupContent += `<strong>💵 Cash:</strong> ${sanitizeText(tags['payment:cash'])}<br>`;
-                    }
-                    if (tags['payment:cards']) {
-                        popupContent += `<strong>💳 Cards:</strong> ${sanitizeText(tags['payment:cards'])}<br>`;
-                    }
-                    if (tags['payment:credit_cards']) {
-                        popupContent += `<strong>🏦 Credit Cards:</strong> ${sanitizeText(tags['payment:credit_cards'])}<br>`;
-                    }
-                    
-                    // Additional info
-                    if (tags.capacity) {
-                        popupContent += `<strong>👥 Capacity:</strong> ${sanitizeText(tags.capacity)}<br>`;
-                    }
-                    if (tags.smoking) {
-                        popupContent += `<strong>🚬 Smoking:</strong> ${sanitizeText(tags.smoking)}<br>`;
-                    }
-                    
-                    // OSM reference
-                    // Validate OSM element type and ID before using in URL
-                    const validTypes = ['node', 'way', 'relation'];
-                    const elementType = validTypes.includes(element.type) ? element.type : 'node';
-                    // Validate ID is numeric string before parsing
-                    if (/^\d+$/.test(String(element.id))) {
-                        const elementIdNum = parseInt(element.id, 10);
-                        if (elementIdNum > 0) {
-                            popupContent += `<br><small class="popup-osm-ref">`;
-                            // Use validated values directly without double sanitization
-                            popupContent += `<strong>OSM ID:</strong> ${elementType}/${elementIdNum} `;
-                            popupContent += `<a href="https://www.openstreetmap.org/${elementType}/${elementIdNum}" target="_blank" rel="noopener noreferrer">[View on OSM]</a>`;
-                            popupContent += `</small>`;
-                        }
-                    }
-                    popupContent += `</div>`;
-                    
-                    // Add marker to coffee markers layer group
+                    // Add marker to coffee markers layer group with click handler
                     L.marker([lat, lon], { icon: icon })
                         .addTo(coffeeMarkers)
-                        .bindPopup(popupContent);
+                        .on('click', () => showCafeDetails(element));
                 });
                 
                 console.log(`Loaded ${data.elements.length} coffee locations`);
