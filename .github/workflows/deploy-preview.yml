@@ -12,6 +12,10 @@ permissions:
   id-token: write
   pull-requests: write
 
+concurrency:
+  group: pages-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
