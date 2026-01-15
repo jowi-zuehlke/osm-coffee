@@ -21,41 +21,107 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             height: 100vh;
             overflow: hidden;
+            display: flex;
         }
         
-        #map {
+        #sidebar {
+            width: 35%;
             height: 100vh;
-            width: 100%;
+            background: #f5f5f5;
+            overflow-y: auto;
+            border-right: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
         }
         
-        .header {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
+        #sidebar-header {
             background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 20px;
+            border-bottom: 2px solid #ddd;
             text-align: center;
         }
         
-        .header h1 {
+        #sidebar-header h1 {
             font-size: 24px;
             color: #6F4E37;
             margin-bottom: 5px;
         }
         
-        .header p {
+        #sidebar-header p {
             font-size: 14px;
             color: #666;
         }
         
+        #details {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        #details.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+            padding: 20px;
+        }
+        
+        #details-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #details-content h2 {
+            color: #6F4E37;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        #details-content .detail-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        #details-content .detail-label {
+            font-weight: bold;
+            color: #666;
+            min-width: 80px;
+            margin-right: 10px;
+        }
+        
+        #details-content .detail-value {
+            color: #333;
+        }
+        
+        #details-content a {
+            color: #6F4E37;
+            text-decoration: none;
+        }
+        
+        #details-content a:hover {
+            text-decoration: underline;
+        }
+        
+        #map-container {
+            flex: 1;
+            position: relative;
+            height: 100vh;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
         .legend {
             position: absolute;
-            bottom: 30px;
-            left: 10px;
+            bottom: 20px;
+            right: 20px;
             z-index: 1000;
             background: white;
             padding: 15px;
@@ -101,9 +167,8 @@
         
         .loading {
             position: absolute;
-            top: 90px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 20px;
+            right: 20px;
             z-index: 1000;
             background: white;
             padding: 10px 20px;
@@ -118,8 +183,8 @@
         
         .location-button {
             position: absolute;
-            top: 90px;
-            right: 10px;
+            top: 70px;
+            right: 20px;
             z-index: 1000;
             background: white;
             border: 2px solid rgba(0,0,0,0.2);
@@ -147,35 +212,67 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+        
+        /* Responsive design for mobile/tablet */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                width: 100%;
+                height: 40vh;
+                border-right: none;
+                border-bottom: 2px solid #ddd;
+            }
+            
+            #map-container {
+                height: 60vh;
+            }
+            
+            .legend {
+                bottom: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>☕ OSM Coffee Hotspots</h1>
-        <p>Discover cafes and roasteries near you</p>
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <h1>☕ OSM Coffee Hotspots</h1>
+            <p>Discover cafes and roasteries near you</p>
+        </div>
+        <div id="details" class="empty">
+            <p>👆 Click on a marker on the map to see cafe details</p>
+        </div>
     </div>
     
-    <div class="loading" id="loading">
-        Loading coffee locations...
-    </div>
-    
-    <button class="location-button" id="locationBtn" title="Show my location">📍</button>
-    
-    <div id="map"></div>
-    
-    <div class="legend">
-        <h3>Legend</h3>
-        <div class="legend-item">
-            <div class="legend-icon cafe-icon">☕</div>
-            <span>Cafe</span>
+    <div id="map-container">
+        <div class="loading" id="loading">
+            Loading coffee locations...
         </div>
-        <div class="legend-item">
-            <div class="legend-icon shop-icon">🏪</div>
-            <span>Coffee Shop</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-icon roastery-icon">🔥</div>
-            <span>Roastery</span>
+        
+        <button class="location-button" id="locationBtn" title="Show my location">📍</button>
+        
+        <div id="map"></div>
+        
+        <div class="legend">
+            <h3>Legend</h3>
+            <div class="legend-item">
+                <div class="legend-icon cafe-icon">☕</div>
+                <span>Cafe</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon shop-icon">🏪</div>
+                <span>Coffee Shop</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon roastery-icon">🔥</div>
+                <span>Roastery</span>
+            </div>
         </div>
     </div>
     
@@ -224,6 +321,100 @@
             iconAnchor: [16, 16],
             popupAnchor: [0, -16]
         });
+        
+        // Function to display cafe details in sidebar
+        function showCafeDetails(element) {
+            const tags = element.tags || {};
+            const name = tags.name || 'Unnamed';
+            
+            // Determine the type label based on OSM tags
+            let typeLabel;
+            if (tags.craft === 'roaster') {
+                typeLabel = 'Roastery 🔥';
+            } else if (tags.shop === 'coffee') {
+                typeLabel = 'Coffee Shop 🏪';
+            } else {
+                typeLabel = 'Cafe ☕';
+            }
+            
+            const detailsDiv = document.getElementById('details');
+            detailsDiv.classList.remove('empty');
+            
+            let detailsHTML = '<div id="details-content">';
+            detailsHTML += `<h2>${sanitizeText(name)}</h2>`;
+            
+            detailsHTML += '<div class="detail-row">';
+            detailsHTML += '<span class="detail-label">Type:</span>';
+            detailsHTML += `<span class="detail-value">${typeLabel}</span>`;
+            detailsHTML += '</div>';
+            
+            if (tags.opening_hours) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">Hours:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.opening_hours)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['addr:street']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">Address:</span>';
+                detailsHTML += '<span class="detail-value">';
+                detailsHTML += sanitizeText(tags['addr:street']);
+                if (tags['addr:housenumber']) {
+                    detailsHTML += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                }
+                if (tags['addr:city']) {
+                    detailsHTML += `, ${sanitizeText(tags['addr:city'])}`;
+                }
+                if (tags['addr:postcode']) {
+                    detailsHTML += ` ${sanitizeText(tags['addr:postcode'])}`;
+                }
+                detailsHTML += '</span>';
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.phone) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">Phone:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.phone)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.website) {
+                const safeUrl = sanitizeUrl(tags.website);
+                if (safeUrl) {
+                    detailsHTML += '<div class="detail-row">';
+                    detailsHTML += '<span class="detail-label">Website:</span>';
+                    detailsHTML += `<span class="detail-value"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Visit Website</a></span>`;
+                    detailsHTML += '</div>';
+                }
+            }
+            
+            if (tags.cuisine) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">Cuisine:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.cuisine)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.outdoor_seating) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">Outdoor:</span>';
+                detailsHTML += `<span class="detail-value">${tags.outdoor_seating === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.wifi) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">WiFi:</span>';
+                detailsHTML += `<span class="detail-value">${tags.wifi === 'yes' || tags.wifi === 'free' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            detailsHTML += '</div>';
+            
+            detailsDiv.innerHTML = detailsHTML;
+        }
         
         // Function to sanitize text content to prevent XSS
         function sanitizeText(text) {
@@ -311,50 +502,21 @@
                     }
                     
                     const tags = element.tags || {};
-                    const name = sanitizeText(tags.name || 'Unnamed');
                     
-                    // Determine the type and icon based on OSM tags
-                    let type, icon, typeLabel;
+                    // Determine the icon based on OSM tags
+                    let icon;
                     if (tags.craft === 'roaster') {
-                        type = 'roastery';
                         icon = roasteryIcon;
-                        typeLabel = 'Roastery 🔥';
                     } else if (tags.shop === 'coffee') {
-                        type = 'shop';
                         icon = shopIcon;
-                        typeLabel = 'Coffee Shop 🏪';
                     } else {
-                        type = 'cafe';
                         icon = cafeIcon;
-                        typeLabel = 'Cafe ☕';
                     }
                     
-                    // Create popup content with sanitized data
-                    let popupContent = `<strong>${name}</strong><br>`;
-                    popupContent += `Type: ${typeLabel}<br>`;
-                    
-                    if (tags.opening_hours) {
-                        popupContent += `Hours: ${sanitizeText(tags.opening_hours)}<br>`;
-                    }
-                    if (tags['addr:street']) {
-                        popupContent += sanitizeText(tags['addr:street']);
-                        if (tags['addr:housenumber']) {
-                            popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
-                        }
-                        popupContent += '<br>';
-                    }
-                    if (tags.website) {
-                        const safeUrl = sanitizeUrl(tags.website);
-                        if (safeUrl) {
-                            // Use sanitizeText on the URL for extra safety in HTML context
-                            popupContent += `<a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
-                        }
-                    }
-                    
-                    // Add marker to coffee markers layer group
+                    // Add marker to coffee markers layer group with click handler
                     L.marker([lat, lon], { icon: icon })
                         .addTo(coffeeMarkers)
-                        .bindPopup(popupContent);
+                        .on('click', () => showCafeDetails(element));
                 });
                 
                 console.log(`Loaded ${data.elements.length} coffee locations`);
