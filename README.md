@@ -8,7 +8,8 @@ A single page application that displays an interactive map highlighting cafes an
 
 ## Features
 - 🗺️ Interactive map powered by OpenStreetMap and Leaflet.js
-- ☕ Displays cafes with coffee cup markers
+- ☕ Displays cafes (places to sit and drink) with coffee cup markers
+- 🏪 Displays coffee shops (retail stores selling coffee products) with shop markers
 - 🔥 Displays roasteries with flame markers
 - 📍 Automatically detects user location (with permission)
 - 🔄 Updates markers when panning/zooming the map
@@ -43,6 +44,6 @@ npx http-server
 
 ## Data Source
 Coffee location data is fetched from OpenStreetMap via the Overpass API, querying for:
-- `amenity=cafe` - Coffee shops and cafes
-- `shop=coffee` - Coffee retailers
-- `craft=roaster` - Coffee roasteries
+- `amenity=cafe` - Cafes and coffee shops where you can sit and consume beverages
+- `shop=coffee` - Retail shops selling coffee beans, ground coffee, and equipment
+- `craft=roaster` - Coffee roasting facilities
