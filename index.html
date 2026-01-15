@@ -147,6 +147,31 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+        
+        /* Leaflet popup styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+        
+        .leaflet-popup-content {
+            margin: 15px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .leaflet-popup-content strong {
+            color: #333;
+        }
+        
+        .leaflet-popup-content a {
+            color: #6F4E37;
+            text-decoration: none;
+        }
+        
+        .leaflet-popup-content a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -330,26 +355,105 @@
                     }
                     
                     // Create popup content with sanitized data
-                    let popupContent = `<strong>${name}</strong><br>`;
-                    popupContent += `Type: ${typeLabel}<br>`;
+                    let popupContent = `<div style="max-width: 300px;">`;
+                    popupContent += `<strong style="font-size: 16px;">${name}</strong><br>`;
+                    popupContent += `<em style="color: #666;">${typeLabel}</em><br><br>`;
                     
-                    if (tags.opening_hours) {
-                        popupContent += `Hours: ${sanitizeText(tags.opening_hours)}<br>`;
-                    }
-                    if (tags['addr:street']) {
-                        popupContent += sanitizeText(tags['addr:street']);
-                        if (tags['addr:housenumber']) {
-                            popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                    // Address information
+                    if (tags['addr:street'] || tags['addr:city']) {
+                        popupContent += `<strong>📍 Address:</strong> `;
+                        if (tags['addr:street']) {
+                            popupContent += sanitizeText(tags['addr:street']);
+                            if (tags['addr:housenumber']) {
+                                popupContent += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                            }
+                        }
+                        if (tags['addr:city']) {
+                            popupContent += `, ${sanitizeText(tags['addr:city'])}`;
+                        }
+                        if (tags['addr:postcode']) {
+                            popupContent += ` ${sanitizeText(tags['addr:postcode'])}`;
                         }
                         popupContent += '<br>';
+                    }
+                    
+                    // Opening hours
+                    if (tags.opening_hours) {
+                        popupContent += `<strong>🕒 Hours:</strong> ${sanitizeText(tags.opening_hours)}<br>`;
+                    }
+                    
+                    // Contact information
+                    if (tags.phone) {
+                        popupContent += `<strong>📞 Phone:</strong> ${sanitizeText(tags.phone)}<br>`;
+                    }
+                    if (tags.email) {
+                        popupContent += `<strong>✉️ Email:</strong> ${sanitizeText(tags.email)}<br>`;
                     }
                     if (tags.website) {
                         const safeUrl = sanitizeUrl(tags.website);
                         if (safeUrl) {
-                            // Use sanitizeText on the URL for extra safety in HTML context
-                            popupContent += `<a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Website</a><br>`;
+                            popupContent += `<strong>🌐 Website:</strong> <a href="${sanitizeText(safeUrl)}" target="_blank" rel="noopener noreferrer">Link</a><br>`;
                         }
                     }
+                    
+                    // Cuisine and diet options
+                    if (tags.cuisine) {
+                        popupContent += `<strong>🍽️ Cuisine:</strong> ${sanitizeText(tags.cuisine)}<br>`;
+                    }
+                    if (tags['diet:vegetarian']) {
+                        popupContent += `<strong>🥗 Vegetarian:</strong> ${sanitizeText(tags['diet:vegetarian'])}<br>`;
+                    }
+                    if (tags['diet:vegan']) {
+                        popupContent += `<strong>🌱 Vegan:</strong> ${sanitizeText(tags['diet:vegan'])}<br>`;
+                    }
+                    
+                    // Amenities
+                    if (tags.outdoor_seating) {
+                        popupContent += `<strong>🪑 Outdoor Seating:</strong> ${sanitizeText(tags.outdoor_seating)}<br>`;
+                    }
+                    if (tags.takeaway) {
+                        popupContent += `<strong>🥤 Takeaway:</strong> ${sanitizeText(tags.takeaway)}<br>`;
+                    }
+                    if (tags.delivery) {
+                        popupContent += `<strong>🚚 Delivery:</strong> ${sanitizeText(tags.delivery)}<br>`;
+                    }
+                    if (tags.internet_access) {
+                        popupContent += `<strong>📶 WiFi:</strong> ${sanitizeText(tags.internet_access)}<br>`;
+                    }
+                    if (tags['internet_access:fee']) {
+                        popupContent += `<strong>💰 WiFi Fee:</strong> ${sanitizeText(tags['internet_access:fee'])}<br>`;
+                    }
+                    
+                    // Accessibility
+                    if (tags.wheelchair) {
+                        popupContent += `<strong>♿ Wheelchair Access:</strong> ${sanitizeText(tags.wheelchair)}<br>`;
+                    }
+                    
+                    // Payment methods
+                    if (tags['payment:cash']) {
+                        popupContent += `<strong>💵 Cash:</strong> ${sanitizeText(tags['payment:cash'])}<br>`;
+                    }
+                    if (tags['payment:cards']) {
+                        popupContent += `<strong>💳 Cards:</strong> ${sanitizeText(tags['payment:cards'])}<br>`;
+                    }
+                    if (tags['payment:credit_cards']) {
+                        popupContent += `<strong>💳 Credit Cards:</strong> ${sanitizeText(tags['payment:credit_cards'])}<br>`;
+                    }
+                    
+                    // Additional info
+                    if (tags.capacity) {
+                        popupContent += `<strong>👥 Capacity:</strong> ${sanitizeText(tags.capacity)}<br>`;
+                    }
+                    if (tags.smoking) {
+                        popupContent += `<strong>🚬 Smoking:</strong> ${sanitizeText(tags.smoking)}<br>`;
+                    }
+                    
+                    // OSM reference
+                    popupContent += `<br><small style="color: #888;">`;
+                    popupContent += `<strong>OSM ID:</strong> ${sanitizeText(element.type)}/${sanitizeText(String(element.id))} `;
+                    popupContent += `<a href="https://www.openstreetmap.org/${sanitizeText(element.type)}/${sanitizeText(String(element.id))}" target="_blank" rel="noopener noreferrer">[View on OSM]</a>`;
+                    popupContent += `</small>`;
+                    popupContent += `</div>`;
                     
                     // Add marker to coffee markers layer group
                     L.marker([lat, lon], { icon: icon })
