@@ -66,14 +66,16 @@ function init() {
             
             if (isActive) {
                 heatmapToggleBtn.classList.add('active');
-                // Update heatmap data after it's been added to the map
-                const elements = getLastFetchedElements();
-                if (elements && elements.length > 0) {
-                    updateHeatmapData(elements);
-                } else {
-                    // If no data, show a console message for debugging
-                    console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
-                }
+                // Use setTimeout to ensure layer is fully attached to map before updating data
+                setTimeout(() => {
+                    const elements = getLastFetchedElements();
+                    if (elements && elements.length > 0) {
+                        updateHeatmapData(elements);
+                    } else {
+                        // If no data, show a console message for debugging
+                        console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
+                    }
+                }, 0);
             } else {
                 heatmapToggleBtn.classList.remove('active');
             }
