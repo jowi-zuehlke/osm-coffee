@@ -26,15 +26,15 @@ function init() {
     // Initialize geolocation
     initGeolocation(map, icons.userLocation);
     
-    // Initial data load
+    // Initial data load - this is async but we don't need to wait
     updateCoffeeMarkers();
     
     // Debounced function to prevent excessive API calls during map movement
-    const debouncedUpdate = debounce(() => {
-        updateCoffeeMarkers();
-        // Update heatmap with the same data
+    const debouncedUpdate = debounce(async () => {
+        await updateCoffeeMarkers();
+        // Update heatmap with the same data (after markers are updated)
         const elements = getLastFetchedElements();
-        if (elements) {
+        if (elements && elements.length > 0) {
             updateHeatmapData(elements);
         }
     }, CONFIG.MAP_MOVE_DEBOUNCE);
@@ -43,11 +43,11 @@ function init() {
     map.on('moveend', debouncedUpdate);
     
     // Initialize filters with callback that updates both markers and heatmap
-    initFilters(() => {
-        updateCoffeeMarkers();
-        // Update heatmap with filtered data
+    initFilters(async () => {
+        await updateCoffeeMarkers();
+        // Update heatmap with filtered data (after markers are updated)
         const elements = getLastFetchedElements();
-        if (elements) {
+        if (elements && elements.length > 0) {
             updateHeatmapData(elements);
         }
     });
@@ -61,13 +61,21 @@ function init() {
     const heatmapToggleBtn = document.getElementById('heatmapToggle');
     if (heatmapToggleBtn) {
         heatmapToggleBtn.addEventListener('click', () => {
+            const elements = getLastFetchedElements();
+            
+            // First update the heatmap data
+            if (elements && elements.length > 0) {
+                updateHeatmapData(elements);
+            }
+            
+            // Then toggle visibility
             const isActive = toggleHeatmap();
+            
             if (isActive) {
                 heatmapToggleBtn.classList.add('active');
-                // Update heatmap with current data
-                const elements = getLastFetchedElements();
-                if (elements) {
-                    updateHeatmapData(elements);
+                // If no data, show a console message for debugging
+                if (!elements || elements.length === 0) {
+                    console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
                 }
             } else {
                 heatmapToggleBtn.classList.remove('active');
