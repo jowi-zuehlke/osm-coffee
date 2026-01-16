@@ -7,6 +7,9 @@ export const CONFIG = {
     DEFAULT_ZOOM: 13,
     USER_LOCATION_ZOOM: 15,
     
+    // Minimum zoom level to load locations (prevents API overload)
+    MIN_ZOOM_FOR_LOCATIONS: 13,
+    
     // API timeouts (milliseconds)
     OVERPASS_TIMEOUT: 30000,
     GEOLOCATION_TIMEOUT: 10000,
