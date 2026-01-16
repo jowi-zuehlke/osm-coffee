@@ -26,7 +26,10 @@ export const CONFIG = {
         ROASTERY: '#D2691E',
         SHOP: '#228B22',
         USER_LOCATION: '#4285F4'
-    }
+    },
+    
+    // Heatmap settings
+    HEATMAP_INTENSITY: 0.5
 };
 
 /**

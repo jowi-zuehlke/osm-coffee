@@ -58,8 +58,8 @@ export function updateHeatmapData(elements) {
             
             if (lat && lon) {
                 // Return [lat, lng, intensity]
-                // Using intensity of 0.5 for all points (can be adjusted)
-                return [lat, lon, 0.5];
+                // Using intensity from config
+                return [lat, lon, CONFIG.HEATMAP_INTENSITY];
             }
             return null;
         })

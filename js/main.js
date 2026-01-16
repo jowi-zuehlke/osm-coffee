@@ -42,8 +42,15 @@ function init() {
     // Reload coffee locations when map is moved
     map.on('moveend', debouncedUpdate);
     
-    // Initialize filters
-    initFilters(updateCoffeeMarkers);
+    // Initialize filters with callback that updates both markers and heatmap
+    initFilters(() => {
+        updateCoffeeMarkers();
+        // Update heatmap with filtered data
+        const elements = getLastFetchedElements();
+        if (elements) {
+            updateHeatmapData(elements);
+        }
+    });
     
     // Add click event listener to location button
     document.getElementById('locationBtn').addEventListener('click', () => {
@@ -51,18 +58,18 @@ function init() {
     });
     
     // Add click event listener to heatmap toggle button
-    document.getElementById('heatmapToggle').addEventListener('click', () => {
+    const heatmapToggleBtn = document.getElementById('heatmapToggle');
+    heatmapToggleBtn.addEventListener('click', () => {
         const isActive = toggleHeatmap();
-        const button = document.getElementById('heatmapToggle');
         if (isActive) {
-            button.classList.add('active');
+            heatmapToggleBtn.classList.add('active');
             // Update heatmap with current data
             const elements = getLastFetchedElements();
             if (elements) {
                 updateHeatmapData(elements);
             }
         } else {
-            button.classList.remove('active');
+            heatmapToggleBtn.classList.remove('active');
         }
     });
     
