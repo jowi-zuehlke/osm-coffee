@@ -109,7 +109,7 @@ async function updateCoffeeMarkers() {
 
 /**
  * Initializes the map
- * @returns {Object} Object containing map and updateCoffeeMarkers function
+ * @returns {Object} Object containing map, updateCoffeeMarkers function, and helper functions
  */
 export function initMap() {
     // Initialize the map
@@ -128,6 +128,20 @@ export function initMap() {
         map,
         updateCoffeeMarkers,
         getIconForType,
-        icons
+        icons,
+        panToLocation
     };
+}
+
+/**
+ * Pans the map to a specific location
+ * @param {number} lat - Latitude
+ * @param {number} lon - Longitude
+ * @param {number} zoom - Optional zoom level (defaults to current zoom or 16)
+ */
+export function panToLocation(lat, lon, zoom = null) {
+    if (!map) return;
+    
+    const targetZoom = zoom || Math.max(map.getZoom(), 16);
+    map.setView([lat, lon], targetZoom, { animate: true });
 }
