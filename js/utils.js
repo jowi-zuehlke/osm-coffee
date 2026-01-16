@@ -57,6 +57,8 @@ export function getLocationType(tags) {
         return { type: 'roastery', label: 'Roastery 🔥' };
     } else if (tags.shop === 'coffee') {
         return { type: 'shop', label: 'Coffee Shop 🏪' };
+    } else if (tags.amenity === 'fast_food' && tags.cuisine === 'sandwich') {
+        return { type: 'sandwich', label: 'Sandwich Shop 🥪' };
     } else {
         return { type: 'cafe', label: 'Cafe ☕' };
     }

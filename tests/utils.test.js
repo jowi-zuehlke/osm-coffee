@@ -183,6 +183,12 @@ describe('getLocationType', () => {
         assert.deepStrictEqual(result, { type: 'cafe', label: 'Cafe ☕' });
     });
 
+    test('should identify sandwich shop by amenity=fast_food and cuisine=sandwich', () => {
+        const tags = { amenity: 'fast_food', cuisine: 'sandwich' };
+        const result = getLocationType(tags);
+        assert.deepStrictEqual(result, { type: 'sandwich', label: 'Sandwich Shop 🥪' });
+    });
+
     test('should default to cafe for empty tags', () => {
         const tags = {};
         const result = getLocationType(tags);

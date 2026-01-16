@@ -25,6 +25,7 @@ export const CONFIG = {
         CAFE: '#8B4513',
         ROASTERY: '#D2691E',
         SHOP: '#228B22',
+        SANDWICH: '#FF6B6B',
         USER_LOCATION: '#4285F4'
     }
 };
@@ -35,5 +36,6 @@ export const CONFIG = {
 export const filterState = {
     cafe: true,
     shop: true,
-    roastery: true
+    roastery: true,
+    sandwich: true
 };
