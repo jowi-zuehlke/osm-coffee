@@ -520,6 +520,33 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
 
 ---
 
+### Favicon
+
+**Files:**
+- `favicon.svg` - Scalable vector graphic (primary, for modern browsers)
+- `favicon.ico` - Bitmap icon (fallback, for older browsers)
+- `favicon.png` - PNG source (32x32px, used to generate ICO)
+
+**Design:**
+- Icon: Coffee cup with steam
+- Primary Color: #6F4E37 (Coffee Brown)
+- Dark Color: #3E2723 (Coffee inside cup)
+- Steam Color: #8B7355 (Light Brown, semi-transparent)
+- Size: 32x32px (standard favicon size)
+- Format: SVG for modern browsers with ICO fallback
+
+**HTML Implementation:**
+```html
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.ico">
+```
+
+**Browser Support:**
+- SVG favicon: Modern browsers (Chrome 80+, Firefox 41+, Safari 9+, Edge 79+)
+- ICO favicon: All browsers including legacy IE
+
+---
+
 ### Layout and Spacing
 
 **Desktop Grid:**
@@ -1033,6 +1060,9 @@ Not provided - application requires JavaScript to function.
 
 **Files Deployed:**
 - index.html
+- favicon.svg (primary favicon)
+- favicon.ico (fallback favicon)
+- favicon.png (source image for ICO generation)
 - styles/main.css
 - js/*.js (8 files)
 - README.md (optional)
