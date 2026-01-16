@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSM Coffee - Coffee Hotspots Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- Application CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <h1>☕ OSM Coffee Hotspots</h1>
+            <p>Discover cafes and roasteries near you</p>
+        </div>
+        <div id="favorites">
+            <h2>⭐ Favorites</h2>
+            <div id="favorites-list" class="empty">
+                <p>No favorites yet. Click the ❤️ button on a cafe to add it here!</p>
+            </div>
+        </div>
+        <div id="details" class="empty">
+            <p>👆 Click on a marker on the map to see cafe details</p>
+        </div>
+    </div>
+    
+    <div id="map-container">
+        <div class="loading" id="loading">
+            Loading coffee locations...
+        </div>
+        
+        <div class="zoom-warning" id="zoomWarning">
+            🔍 Zoom in to see coffee locations
+        </div>
+        
+        <button class="location-button" id="locationBtn" title="Show my location">📍</button>
+        
+        <div id="map"></div>
+        
+        <div class="legend">
+            <h3>Legend</h3>
+            <div class="legend-item" data-type="cafe">
+                <div class="legend-icon cafe-icon">☕</div>
+                <span>Cafe</span>
+            </div>
+            <div class="legend-item" data-type="shop">
+                <div class="legend-icon shop-icon">🏪</div>
+                <span>Coffee Shop</span>
+            </div>
+            <div class="legend-item" data-type="roastery">
+                <div class="legend-icon roastery-icon">🔥</div>
+                <span>Roastery</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Application JS (ES6 Modules) -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
