@@ -49,9 +49,9 @@ export function initHeatmap(mapInstance) {
 export function updateHeatmapData(elements) {
     if (!heatmapLayer) return;
     
-    // Only update if heatmap is visible (added to map)
-    // This prevents errors when trying to redraw a layer not on the map
-    if (!isHeatmapVisible) return;
+    // Only update if heatmap is visible and attached to a map
+    // Check both isHeatmapVisible flag and that the layer has a map reference
+    if (!isHeatmapVisible || !heatmapLayer._map) return;
     
     // Convert elements to lat/lng points for heatmap
     const heatmapPoints = elements
