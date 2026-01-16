@@ -11,6 +11,7 @@ A single page application that displays an interactive map highlighting cafes an
 - ☕ Displays cafes (places to sit and drink) with coffee cup markers
 - 🏪 Displays coffee shops (retail stores selling coffee products) with shop markers
 - 🔥 Displays roasteries with flame markers
+- 🥪 Displays sandwich shops with sandwich markers
 - 📍 Automatically detects user location (with permission)
 - 🔄 Updates markers when panning/zooming the map
 - 💬 Click markers for detailed information (name, hours, address, website)
@@ -91,6 +92,7 @@ Coffee location data is fetched from OpenStreetMap via the Overpass API, queryin
 - `amenity=cafe` - Cafes and coffee shops where you can sit and consume beverages
 - `shop=coffee` - Retail shops selling coffee beans, ground coffee, and equipment
 - `craft=roaster` - Coffee roasting facilities
+- `amenity=fast_food` with `cuisine=sandwich` - Fast food establishments specializing in sandwiches
 
 ## Testing
 
