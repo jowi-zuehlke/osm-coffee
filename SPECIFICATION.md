@@ -311,6 +311,49 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 
 ---
 
+### FR9: Favorites Management
+**Priority:** Low  
+**Description:** Allow users to save favorite coffee locations for quick access.
+
+**Features:**
+- Add/remove locations to favorites via heart button (❤️)
+- Persistent storage using localStorage
+- Favorites displayed in sidebar
+- Click favorite to navigate to location on map
+- Favorites persist across browser sessions
+- Visual distinction for favorited locations
+
+**Information Displayed (per favorite):**
+- Location name (or "Unnamed")
+- Type emoji (☕ cafe, 🏪 shop, 🔥 roastery)
+- Clickable to pan map and show details
+
+**User Actions:**
+1. **Add Favorite**
+   - Click ❤️ button in location details
+   - Location added to favorites list
+   - Button shows filled heart
+
+2. **Remove Favorite**
+   - Click filled ❤️ button in location details
+   - Location removed from favorites list
+   - Button shows empty heart
+
+3. **Navigate to Favorite**
+   - Click favorite item in sidebar
+   - Map pans to location
+   - Location details displayed
+
+**Acceptance Criteria:**
+- Favorites persist across page reloads
+- Duplicate prevention (same location not added twice)
+- Favorites list updates immediately on add/remove
+- Empty state shown when no favorites
+- Maximum storage respects localStorage limits
+- Graceful handling of localStorage errors
+
+---
+
 ## Technical Specifications
 
 ### Tech Stack
@@ -375,7 +418,7 @@ filterState = {
 
 ### Module Structure
 
-**Total Files:** 9 JavaScript modules
+**Total Files:** 10 JavaScript modules
 
 1. **config.js** - Configuration constants and mutable state
 2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection)
@@ -385,7 +428,8 @@ filterState = {
 6. **map.js** - Leaflet map and marker management
 7. **geolocation.js** - Browser geolocation features
 8. **filters.js** - Location type filtering logic
-9. **main.js** - Application initialization and event wiring
+9. **favorites.js** - Favorites management with localStorage persistence
+10. **main.js** - Application initialization and event wiring
 
 **Dependency Graph:**
 ```
@@ -395,15 +439,16 @@ main.js
 ├── map.js
 │   ├── config.js
 │   ├── utils.js
-│   ├── ui.js (uses utils.js)
+│   ├── ui.js (uses utils.js, favorites.js)
 │   └── api.js
 │       ├── config.js
 │       ├── utils.js
 │       └── cache.js (uses config.js)
 ├── geolocation.js (uses config.js)
-└── filters.js
-    ├── config.js
-    └── cache.js
+├── filters.js
+│   ├── config.js
+│   └── cache.js
+└── favorites.js (uses utils.js)
 ```
 
 ---
@@ -1008,17 +1053,17 @@ target="_blank" rel="noopener noreferrer"
 **Known Limitations:**
 - No HTTPS enforcement on development servers
 - No CSP headers (static hosting limitation)
-- No rate limiting on API calls (relies on Overpass fair use)
+- No server-side rate limiting (relies on Overpass fair use; client-side caching and debouncing reduce load)
 - No authentication (not required for public data)
 - Geolocation data exposed to Overpass API (IP-based location)
 - No input sanitization on OSM data (trusted source)
 
 **Data Privacy:**
 - No cookies used
-- No localStorage usage
+- localStorage used only for favorites (user preference data)
 - No tracking scripts
 - No analytics
-- No user data collection
+- No user data collection beyond local favorites
 - Geolocation requests require explicit permission
 - OpenStreetMap may log IP addresses
 
@@ -1400,7 +1445,7 @@ The test workflow (`.github/workflows/test.yml`) uses:
 
 **Security:**
 - Implement CSP headers
-- Add rate limiting client-side
+- Add request queue with more sophisticated rate limiting
 - Security audit of dependencies
 - Automated vulnerability scanning
 
