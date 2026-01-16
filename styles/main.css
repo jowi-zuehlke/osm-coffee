@@ -349,3 +349,28 @@ body {
         padding: 10px;
     }
 }
+
+/* Open status indicators */
+.open-status {
+    display: inline-block;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.open-status.open {
+    color: #2d7a2d;
+    background-color: #e8f5e9;
+}
+
+.open-status.closed {
+    color: #c62828;
+    background-color: #ffebee;
+}
+
+.open-status.unknown {
+    color: #666;
+    background-color: #f5f5f5;
+}

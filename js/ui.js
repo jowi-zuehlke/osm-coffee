@@ -2,7 +2,7 @@
  * UI functions for displaying cafe details in the sidebar
  */
 
-import { sanitizeText, sanitizeUrl } from './utils.js';
+import { sanitizeText, sanitizeUrl, parseOpeningHours } from './utils.js';
 import { isFavorite, toggleFavorite } from './favorites.js';
 
 // Store current element for reference
@@ -37,43 +37,51 @@ function createDetailRow(label, value, isLink = false, linkHref = '') {
 }
 
 /**
- * Generates HTML for address information
+ * Generates HTML for address information with fallback to contact:* tags
  * @param {Object} tags - OSM tags containing address information
  * @returns {string} HTML string for address details
  */
 function generateAddressHTML(tags) {
-    if (!tags['addr:street'] && !tags['addr:city']) {
+    // Try addr:* tags first
+    const street = tags['addr:street'] || tags['contact:street'];
+    const housenumber = tags['addr:housenumber'] || tags['contact:housenumber'];
+    const city = tags['addr:city'] || tags['contact:city'];
+    const postcode = tags['addr:postcode'] || tags['contact:postcode'];
+    
+    // Return empty if no address information available
+    if (!street && !city) {
         return '';
     }
     
     let address = '';
-    if (tags['addr:street']) {
-        address += sanitizeText(tags['addr:street']);
-        if (tags['addr:housenumber']) {
-            address += ` ${sanitizeText(tags['addr:housenumber'])}`;
+    if (street) {
+        address += sanitizeText(street);
+        if (housenumber) {
+            address += ` ${sanitizeText(housenumber)}`;
         }
     }
-    if (tags['addr:city']) {
-        address += `, ${sanitizeText(tags['addr:city'])}`;
+    if (city) {
+        address += (address ? ', ' : '') + sanitizeText(city);
     }
-    if (tags['addr:postcode']) {
-        address += ` ${sanitizeText(tags['addr:postcode'])}`;
+    if (postcode) {
+        address += ` ${sanitizeText(postcode)}`;
     }
     
     return createDetailRow('📍 Address', address);
 }
 
 /**
- * Generates HTML for contact information (phone, email, website)
+ * Generates HTML for contact information (phone, email, website) with fallback to contact:* tags
  * @param {Object} tags - OSM tags containing contact information
  * @returns {string} HTML string for contact details
  */
 function generateContactHTML(tags) {
     let html = '';
     
-    // Phone
-    if (tags.phone) {
-        const phoneText = sanitizeText(tags.phone);
+    // Phone (with fallback to contact:phone)
+    const phone = tags.phone || tags['contact:phone'];
+    if (phone) {
+        const phoneText = sanitizeText(phone);
         const phoneHref = phoneText.replace(/[^0-9+]/g, '');
         const digitCount = (phoneHref.match(/\d/g) || []).length;
         
@@ -87,9 +95,10 @@ function generateContactHTML(tags) {
         }
     }
     
-    // Email
-    if (tags.email) {
-        const emailText = sanitizeText(tags.email);
+    // Email (with fallback to contact:email)
+    const email = tags.email || tags['contact:email'];
+    if (email) {
+        const emailText = sanitizeText(email);
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
         
         if (emailRegex.test(emailText)) {
@@ -102,9 +111,10 @@ function generateContactHTML(tags) {
         }
     }
     
-    // Website
-    if (tags.website) {
-        const safeUrl = sanitizeUrl(tags.website);
+    // Website (with fallback to contact:website)
+    const website = tags.website || tags['contact:website'];
+    if (website) {
+        const safeUrl = sanitizeUrl(website);
         if (safeUrl) {
             html += '<div class="detail-row">';
             html += '<span class="detail-label">🌐 Website:</span>';
@@ -117,7 +127,7 @@ function generateContactHTML(tags) {
 }
 
 /**
- * Generates HTML for amenities information (outdoor seating, takeaway, delivery, wifi)
+ * Generates HTML for amenities information (outdoor seating, takeaway, delivery, wifi, toilets)
  * @param {Object} tags - OSM tags containing amenity information
  * @returns {string} HTML string for amenity details
  */
@@ -148,16 +158,29 @@ function generateAmenitiesHTML(tags) {
         html += createDetailRow('💰 WiFi Fee', tags['internet_access:fee'] === 'no' ? 'Free' : 'Paid');
     }
     
+    if (tags.toilets) {
+        html += createDetailRow('🚻 Toilets', tags.toilets === 'yes' ? 'Yes ✓' : 'No');
+    }
+    
     return html;
 }
 
 /**
- * Generates HTML for additional details (cuisine, diet, capacity, accessibility, payment)
+ * Generates HTML for additional details (coffee, roastery, cuisine, diet, capacity, accessibility, payment)
  * @param {Object} tags - OSM tags containing additional information
  * @returns {string} HTML string for additional details
  */
 function generateAdditionalDetailsHTML(tags) {
     let html = '';
+    
+    // Coffee roaster information
+    if (tags['coffee:roaster']) {
+        html += createDetailRow('☕ Roaster', sanitizeText(tags['coffee:roaster']));
+    }
+    
+    if (tags.roastery) {
+        html += createDetailRow('🔥 Roastery', sanitizeText(tags.roastery));
+    }
     
     // Cuisine and diet
     if (tags.cuisine) {
@@ -172,6 +195,21 @@ function generateAdditionalDetailsHTML(tags) {
     if (tags['diet:vegan']) {
         const veganText = tags['diet:vegan'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:vegan']);
         html += createDetailRow('🌱 Vegan', veganText);
+    }
+    
+    if (tags['diet:gluten_free']) {
+        const gfText = tags['diet:gluten_free'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:gluten_free']);
+        html += createDetailRow('🌾 Gluten Free', gfText);
+    }
+    
+    if (tags['diet:halal']) {
+        const halalText = tags['diet:halal'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:halal']);
+        html += createDetailRow('🥙 Halal', halalText);
+    }
+    
+    if (tags['diet:kosher']) {
+        const kosherText = tags['diet:kosher'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:kosher']);
+        html += createDetailRow('✡️ Kosher', kosherText);
     }
     
     // Accessibility
@@ -195,6 +233,22 @@ function generateAdditionalDetailsHTML(tags) {
         html += createDetailRow('🏦 Credit Cards', tags['payment:credit_cards'] === 'yes' ? 'Yes ✓' : 'No');
     }
     
+    if (tags['payment:debit_cards']) {
+        html += createDetailRow('💳 Debit Cards', tags['payment:debit_cards'] === 'yes' ? 'Yes ✓' : 'No');
+    }
+    
+    if (tags['payment:contactless']) {
+        html += createDetailRow('📱 Contactless', tags['payment:contactless'] === 'yes' ? 'Yes ✓' : 'No');
+    }
+    
+    if (tags['payment:bitcoin']) {
+        html += createDetailRow('₿ Bitcoin', tags['payment:bitcoin'] === 'yes' ? 'Yes ✓' : 'No');
+    }
+    
+    if (tags['payment:cryptocurrencies']) {
+        html += createDetailRow('💎 Crypto', tags['payment:cryptocurrencies'] === 'yes' ? 'Yes ✓' : 'No');
+    }
+    
     // Other details
     if (tags.capacity) {
         html += createDetailRow('👥 Capacity', sanitizeText(tags.capacity));
@@ -203,6 +257,51 @@ function generateAdditionalDetailsHTML(tags) {
     if (tags.smoking) {
         html += createDetailRow('🚬 Smoking', tags.smoking === 'no' ? 'No' : sanitizeText(tags.smoking));
     }
+    
+    return html;
+}
+
+/**
+ * Generates HTML for opening hours with "Open now?" indicator
+ * @param {Object} tags - OSM tags containing opening hours information
+ * @param {Object} element - The OSM element for linking to OSM
+ * @returns {string} HTML string for opening hours details
+ */
+function generateOpeningHoursHTML(tags, element) {
+    if (!tags.opening_hours) {
+        return '';
+    }
+    
+    const openingHours = tags.opening_hours;
+    const parsed = parseOpeningHours(openingHours);
+    
+    let html = '<div class="detail-row">';
+    html += '<span class="detail-label">🕒 Hours:</span>';
+    html += '<span class="detail-value">';
+    
+    // Add status indicator
+    if (parsed.isOpen === true) {
+        html += '<span class="open-status open">🟢 Open now</span><br>';
+    } else if (parsed.isOpen === false) {
+        html += '<span class="open-status closed">🔴 Closed</span><br>';
+    } else {
+        html += '<span class="open-status unknown">⚪ Status unknown</span><br>';
+    }
+    
+    // Add opening hours text
+    html += sanitizeText(openingHours);
+    
+    // Add link to OSM for detailed info
+    const validTypes = ['node', 'way', 'relation'];
+    const elementType = validTypes.includes(element.type) ? element.type : 'node';
+    const elementId = element.id;
+    
+    if (/^\d+$/.test(String(elementId))) {
+        html += `<br><a href="https://www.openstreetmap.org/${elementType}/${elementId}" target="_blank" rel="noopener noreferrer" style="font-size: 0.9em;">View on OSM</a>`;
+    }
+    
+    html += '</span>';
+    html += '</div>';
     
     return html;
 }
@@ -268,11 +367,7 @@ export function showCafeDetails(element) {
     
     // Add all sections
     html += generateAddressHTML(tags);
-    
-    if (tags.opening_hours) {
-        html += createDetailRow('🕒 Hours', sanitizeText(tags.opening_hours));
-    }
-    
+    html += generateOpeningHoursHTML(tags, element);
     html += generateContactHTML(tags);
     html += generateAmenitiesHTML(tags);
     html += generateAdditionalDetailsHTML(tags);
