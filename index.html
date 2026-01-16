@@ -140,6 +140,18 @@
             display: flex;
             align-items: center;
             margin: 8px 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            user-select: none;
+        }
+        
+        .legend-item:hover {
+            opacity: 0.8;
+        }
+        
+        .legend-item.disabled {
+            opacity: 0.4;
+            text-decoration: line-through;
         }
         
         .legend-icon {
@@ -261,15 +273,15 @@
         
         <div class="legend">
             <h3>Legend</h3>
-            <div class="legend-item">
+            <div class="legend-item" data-type="cafe">
                 <div class="legend-icon cafe-icon">☕</div>
                 <span>Cafe</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="shop">
                 <div class="legend-icon shop-icon">🏪</div>
                 <span>Coffee Shop</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item" data-type="roastery">
                 <div class="legend-icon roastery-icon">🔥</div>
                 <span>Roastery</span>
             </div>
@@ -282,6 +294,13 @@
             crossorigin=""></script>
     
     <script>
+        // Filter state - all types enabled by default
+        const filterState = {
+            cafe: true,
+            shop: true,
+            roastery: true
+        };
+        
         // Initialize the map - centered on Paris, France (default location, will update to user's location if available)
         const map = L.map('map').setView([48.8566, 2.3522], 13);
         
@@ -624,14 +643,22 @@
                     
                     const tags = element.tags || {};
                     
-                    // Determine the icon based on OSM tags
-                    let icon;
+                    // Determine the type and icon based on OSM tags
+                    let icon, type;
                     if (tags.craft === 'roaster') {
                         icon = roasteryIcon;
+                        type = 'roastery';
                     } else if (tags.shop === 'coffee') {
                         icon = shopIcon;
+                        type = 'shop';
                     } else {
                         icon = cafeIcon;
+                        type = 'cafe';
+                    }
+                    
+                    // Skip this marker if its type is filtered out
+                    if (!filterState[type]) {
+                        return;
                     }
                     
                     // Add marker to coffee markers layer group with click handler
@@ -759,6 +786,34 @@
         
         // Reload coffee locations when map is moved (debounced to reduce API calls)
         map.on('moveend', debouncedFetchCoffeeLocations);
+        
+        // Function to toggle filter for a specific type
+        function toggleFilter(type) {
+            filterState[type] = !filterState[type];
+            
+            // Update legend item visual state
+            const legendItem = document.querySelector(`.legend-item[data-type="${type}"]`);
+            if (legendItem) {
+                if (filterState[type]) {
+                    legendItem.classList.remove('disabled');
+                } else {
+                    legendItem.classList.add('disabled');
+                }
+            }
+            
+            // Refresh markers on map
+            fetchCoffeeLocations();
+        }
+        
+        // Add click handlers to legend items
+        document.querySelectorAll('.legend-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const type = item.getAttribute('data-type');
+                if (type) {
+                    toggleFilter(type);
+                }
+            });
+        });
     </script>
 </body>
 </html>
