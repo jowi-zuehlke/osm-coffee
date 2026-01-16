@@ -10,12 +10,19 @@ import { initFilters } from './filters.js';
 import { loadFavorites } from './favorites.js';
 import { renderFavoritesList, showCafeDetails } from './ui.js';
 import { getElementCoordinates } from './api.js';
+import { displayRandomJoke } from './jokes.js';
 
 /**
  * Initializes the application
  * Sets up the map, geolocation, filters, favorites, and event handlers
  */
 function init() {
+    // Initialize coffee jokes footer (do this first, independent of map)
+    const jokeElement = document.getElementById('coffee-joke');
+    if (jokeElement) {
+        displayRandomJoke(jokeElement);
+    }
+    
     // Initialize map
     const { map, updateCoffeeMarkers, icons } = initMap();
     
