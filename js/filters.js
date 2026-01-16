@@ -3,6 +3,7 @@
  */
 
 import { filterState } from './config.js';
+import { clearCache } from './cache.js';
 
 /**
  * Toggles the filter for a specific location type
@@ -11,6 +12,9 @@ import { filterState } from './config.js';
  */
 export function toggleFilter(type, updateMarkersCallback) {
     filterState[type] = !filterState[type];
+    
+    // Clear cache when filters change since cached data is filter-specific
+    clearCache();
     
     // Update legend item visual state
     const legendItem = document.querySelector(`.legend-item[data-type="${type}"]`);

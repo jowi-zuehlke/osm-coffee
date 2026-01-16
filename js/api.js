@@ -4,6 +4,10 @@
 
 import { CONFIG, filterState } from './config.js';
 import { getLocationType } from './utils.js';
+import { getCacheKey, getFromCache, setCache } from './cache.js';
+
+// Track the current in-flight request to allow cancellation
+let currentAbortController = null;
 
 /**
  * Builds the Overpass API query for coffee locations
@@ -46,14 +50,34 @@ export function getElementCoordinates(element) {
 
 /**
  * Fetches coffee locations from Overpass API
+ * Uses client-side caching to reduce API load and improve performance
+ * Cancels any in-flight requests when a new request is made
  * @param {L.LatLngBounds} bounds - The map bounds to query
  * @returns {Promise<Array>} Array of OSM elements
  */
 export async function fetchCoffeeLocations(bounds) {
+    // Cancel any pending request
+    if (currentAbortController) {
+        currentAbortController.abort();
+        console.log('Cancelled previous request');
+    }
+    
+    // Check cache first
+    const cacheKey = getCacheKey(bounds, filterState);
+    const cachedData = getFromCache(cacheKey);
+    
+    if (cachedData) {
+        console.log(`Loaded ${cachedData.length} coffee locations from cache`);
+        return cachedData;
+    }
+    
     const query = buildOverpassQuery(bounds);
     
+    // Create new abort controller for this request
+    currentAbortController = new AbortController();
+    const controller = currentAbortController;
+    
     // Add timeout to fetch request
-    const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.OVERPASS_TIMEOUT);
     
     try {
@@ -84,19 +108,30 @@ export async function fetchCoffeeLocations(bounds) {
         
         console.log(`Loaded ${data.elements.length} coffee locations (${filteredElements.length} after filtering)`);
         
+        // Store in cache
+        setCache(cacheKey, filteredElements);
+        
         return filteredElements;
     } catch (error) {
+        // Don't log cancelled requests as errors
+        if (error.name === 'AbortError') {
+            console.log('Request cancelled or timed out');
+            throw error;
+        }
+        
         console.error('Error fetching coffee locations:', error);
         
         // Show user-friendly error message
         let errorMessage = 'Could not load coffee locations. Please try again later.';
-        if (error.name === 'AbortError') {
-            errorMessage = 'Request timeout - the server took too long to respond. Please try again.';
-        }
         
         // Display error to user (simple alert for now, could be improved with a nicer UI notification)
         console.error(errorMessage);
         
         throw error;
+    } finally {
+        // Clear the controller reference if this was the active one
+        if (currentAbortController === controller) {
+            currentAbortController = null;
+        }
     }
 }
