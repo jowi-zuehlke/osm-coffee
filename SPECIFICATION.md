@@ -134,12 +134,21 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 **Address Information (if available):**
 - 📍 Street address with house number
 - City and postal code
+- Fallback support for contact:* tags (contact:street, contact:housenumber, contact:city, contact:postcode)
+
+**Opening Hours (if available):**
+- 🕒 Opening hours with intelligent status indicator:
+  - 🟢 Open now (for locations currently open)
+  - 🔴 Closed (for locations currently closed)
+  - ⚪ Status unknown (for complex or unparseable hours)
+- Support for common patterns: "Mo-Fr 09:00-18:00", "24/7", etc.
+- Link to OpenStreetMap for detailed opening hours information
+- Visual status badges with color-coded backgrounds
 
 **Contact Information (if available):**
-- 🕒 Opening hours
-- 📞 Phone number (clickable tel: link)
-- ✉️ Email address (clickable mailto: link)
-- 🌐 Website (opens in new tab with rel="noopener noreferrer")
+- 📞 Phone number (clickable tel: link, with fallback to contact:phone)
+- ✉️ Email address (clickable mailto: link, with fallback to contact:email)
+- 🌐 Website (opens in new tab with rel="noopener noreferrer", with fallback to contact:website)
 
 **Amenities (if available):**
 - 🪑 Outdoor seating (Yes/No)
@@ -147,15 +156,27 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 - 🚚 Delivery (Yes/No)
 - 📶 WiFi availability
 - 💰 WiFi fee status (Free/Paid)
+- 🚻 Toilets (Yes/No)
+
+**Coffee & Roastery Information (if available):**
+- ☕ Coffee roaster brand/name (coffee:roaster tag)
+- 🔥 Roastery name/details (roastery tag)
 
 **Additional Details (if available):**
 - 🍽️ Cuisine type
 - 🥗 Vegetarian options
 - 🌱 Vegan options
+- 🌾 Gluten-free options
+- 🥙 Halal options
+- ✡️ Kosher options
 - ♿ Wheelchair accessibility
 - 💵 Cash payment accepted
 - 💳 Card payment accepted
 - 🏦 Credit card payment accepted
+- 💳 Debit card payment accepted
+- 📱 Contactless payment accepted
+- ₿ Bitcoin payment accepted
+- 💎 Cryptocurrency payment accepted
 - 👥 Capacity
 - 🚬 Smoking policy
 
@@ -363,8 +384,8 @@ filterState = {
 **Total Files:** 8 JavaScript modules
 
 1. **config.js** - Configuration constants and mutable state
-2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection)
-3. **ui.js** - UI functions for sidebar and detail display
+2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection, opening hours parsing)
+3. **ui.js** - UI functions for sidebar and detail display (including opening hours status indicator)
 4. **api.js** - Overpass API communication
 5. **map.js** - Leaflet map and marker management
 6. **geolocation.js** - Browser geolocation features
@@ -424,6 +445,48 @@ out center;
 - Malformed responses: Silently skip invalid elements
 - Missing coordinates: Skip element
 - Server errors (4xx/5xx): Log and alert user
+
+---
+
+### Opening Hours Parsing
+
+**Feature:** Intelligent parsing of OSM `opening_hours` tag to determine current open/closed status.
+
+**Parser Implementation:**
+- Location: `utils.js` - `parseOpeningHours()` function
+- Input: OSM opening_hours string
+- Output: `{ isOpen: boolean|null, status: string, error: boolean }`
+
+**Supported Patterns:**
+1. **24/7 Hours:** "24/7", "always" → Always open
+2. **Simple Weekday Ranges:** "Mo-Fr 09:00-18:00" → Open Monday through Friday, 9am to 6pm
+3. **Single Days:** "Mo 09:00-18:00" → Open Monday only
+4. **Multiple Periods:** "Mo-Fr 09:00-18:00; Sa 10:00-16:00" → Different hours on different days
+5. **Week Wrapping:** "Fr-Mo 10:00-20:00" → Handles week boundary crossing
+
+**Status Indicators:**
+- 🟢 **Open now** (Green badge) - Location is currently open based on parsed hours
+- 🔴 **Closed** (Red badge) - Location is currently closed based on parsed hours
+- ⚪ **Status unknown** (Gray badge) - Hours format not parseable or ambiguous
+
+**Parsing Logic:**
+1. Check for simple cases (24/7, always)
+2. Extract current day and time
+3. Parse patterns using regex matching
+4. Compare current time against parsed opening hours
+5. Return appropriate status
+
+**Limitations:**
+- Does not support complex patterns (PH, sunrise/sunset, conditional hours)
+- Does not handle exceptions or holidays
+- Basic time zone handling (uses browser local time)
+- Unparseable patterns default to "Unknown" status
+
+**User Experience:**
+- Status badge displayed prominently in location details
+- Link to OpenStreetMap provided for detailed/complex hours
+- Color-coded visual feedback for quick scanning
+- CSS styling in `main.css` with `.open-status` classes
 
 ---
 
@@ -609,6 +672,23 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
 - Padding: 20px
 - Shadow: 0 2px 10px rgba(0,0,0,0.1)
 
+**Open Status Badges:**
+- Display: Inline-block
+- Padding: 2px 8px
+- Border Radius: 4px
+- Font Size: 0.9em
+- Font Weight: Bold
+- Margin Bottom: 5px
+- **Open (Green):**
+  - Color: #2d7a2d
+  - Background: #e8f5e9
+- **Closed (Red):**
+  - Color: #c62828
+  - Background: #ffebee
+- **Unknown (Gray):**
+  - Color: #666
+  - Background: #f5f5f5
+
 **Markers:**
 - Size: 32x32px
 - Shape: Circular background
@@ -691,18 +771,20 @@ transition: background-color 0.2s;
 | craft | roaster | Coffee roasting facilities |
 
 **Additional Tags Displayed:**
-- name
-- addr:street, addr:housenumber, addr:city, addr:postcode
-- opening_hours
-- phone, email, website
-- outdoor_seating, takeaway, delivery
-- internet_access, wifi, internet_access:fee
-- cuisine
-- diet:vegetarian, diet:vegan
-- wheelchair
-- payment:cash, payment:cards, payment:credit_cards
-- capacity
-- smoking
+- **Basic Info:** name
+- **Address:** addr:street, addr:housenumber, addr:city, addr:postcode
+- **Address Fallback:** contact:street, contact:housenumber, contact:city, contact:postcode
+- **Opening Hours:** opening_hours (with intelligent parsing for "Open now" status)
+- **Contact:** phone, email, website
+- **Contact Fallback:** contact:phone, contact:email, contact:website
+- **Coffee/Roastery:** coffee:roaster, roastery
+- **Amenities:** outdoor_seating, takeaway, delivery, toilets
+- **Internet:** internet_access, wifi, internet_access:fee
+- **Food:** cuisine
+- **Diet:** diet:vegetarian, diet:vegan, diet:gluten_free, diet:halal, diet:kosher
+- **Accessibility:** wheelchair
+- **Payment:** payment:cash, payment:cards, payment:credit_cards, payment:debit_cards, payment:contactless, payment:bitcoin, payment:cryptocurrencies
+- **Other:** capacity, smoking
 
 **Data Freshness:**
 - Updated in near real-time from OSM database
@@ -1138,6 +1220,14 @@ Tests for utility functions in `js/utils.js`:
   - Tests coffee shop identification (shop=coffee)
   - Tests cafe identification (amenity=cafe, default)
   - Tests priority order (roastery > shop > cafe)
+- **parseOpeningHours()**: Opening hours parsing and status determination
+  - Tests 24/7 and "always" patterns (returns Open 24/7)
+  - Tests empty and null input handling (returns Unknown)
+  - Tests simple weekday range patterns (Mo-Fr 09:00-18:00)
+  - Tests single day patterns (Mo 09:00-18:00)
+  - Tests complex patterns with semicolons (multiple periods)
+  - Tests unparseable patterns (returns Unknown with error flag)
+  - Time-dependent tests verify valid result structure
 
 #### 2. favorites.test.js
 Tests for favorites management in `js/favorites.js`:
