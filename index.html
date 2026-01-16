@@ -348,20 +348,16 @@
             detailsHTML += `<span class="detail-value">${typeLabel}</span>`;
             detailsHTML += '</div>';
             
-            if (tags.opening_hours) {
+            // Address information
+            if (tags['addr:street'] || tags['addr:city']) {
                 detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">Hours:</span>';
-                detailsHTML += `<span class="detail-value">${sanitizeText(tags.opening_hours)}</span>`;
-                detailsHTML += '</div>';
-            }
-            
-            if (tags['addr:street']) {
-                detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">Address:</span>';
+                detailsHTML += '<span class="detail-label">📍 Address:</span>';
                 detailsHTML += '<span class="detail-value">';
-                detailsHTML += sanitizeText(tags['addr:street']);
-                if (tags['addr:housenumber']) {
-                    detailsHTML += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                if (tags['addr:street']) {
+                    detailsHTML += sanitizeText(tags['addr:street']);
+                    if (tags['addr:housenumber']) {
+                        detailsHTML += ` ${sanitizeText(tags['addr:housenumber'])}`;
+                    }
                 }
                 if (tags['addr:city']) {
                     detailsHTML += `, ${sanitizeText(tags['addr:city'])}`;
@@ -373,10 +369,39 @@
                 detailsHTML += '</div>';
             }
             
-            if (tags.phone) {
+            // Opening hours
+            if (tags.opening_hours) {
                 detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">Phone:</span>';
-                detailsHTML += `<span class="detail-value">${sanitizeText(tags.phone)}</span>`;
+                detailsHTML += '<span class="detail-label">🕒 Hours:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.opening_hours)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Contact information
+            if (tags.phone) {
+                const phoneText = sanitizeText(tags.phone);
+                const phoneHref = phoneText.replace(/[^0-9+]/g, '');
+                const digitCount = (phoneHref.match(/\d/g) || []).length;
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">📞 Phone:</span>';
+                if (digitCount >= 3) {
+                    detailsHTML += `<span class="detail-value"><a href="tel:${phoneHref}">${phoneText}</a></span>`;
+                } else {
+                    detailsHTML += `<span class="detail-value">${phoneText}</span>`;
+                }
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.email) {
+                const emailText = sanitizeText(tags.email);
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">✉️ Email:</span>';
+                if (emailRegex.test(emailText)) {
+                    detailsHTML += `<span class="detail-value"><a href="mailto:${emailText}">${emailText}</a></span>`;
+                } else {
+                    detailsHTML += `<span class="detail-value">${emailText}</span>`;
+                }
                 detailsHTML += '</div>';
             }
             
@@ -384,31 +409,127 @@
                 const safeUrl = sanitizeUrl(tags.website);
                 if (safeUrl) {
                     detailsHTML += '<div class="detail-row">';
-                    detailsHTML += '<span class="detail-label">Website:</span>';
-                    detailsHTML += `<span class="detail-value"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Visit Website</a></span>`;
+                    detailsHTML += '<span class="detail-label">🌐 Website:</span>';
+                    detailsHTML += `<span class="detail-value"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Visit</a></span>`;
                     detailsHTML += '</div>';
                 }
             }
             
+            // Cuisine and diet options
             if (tags.cuisine) {
                 detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">Cuisine:</span>';
+                detailsHTML += '<span class="detail-label">🍽️ Cuisine:</span>';
                 detailsHTML += `<span class="detail-value">${sanitizeText(tags.cuisine)}</span>`;
                 detailsHTML += '</div>';
             }
             
+            if (tags['diet:vegetarian']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🥗 Vegetarian:</span>';
+                detailsHTML += `<span class="detail-value">${tags['diet:vegetarian'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:vegetarian'])}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['diet:vegan']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🌱 Vegan:</span>';
+                detailsHTML += `<span class="detail-value">${tags['diet:vegan'] === 'yes' ? 'Yes ✓' : sanitizeText(tags['diet:vegan'])}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Amenities
             if (tags.outdoor_seating) {
                 detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">Outdoor:</span>';
+                detailsHTML += '<span class="detail-label">🪑 Outdoor:</span>';
                 detailsHTML += `<span class="detail-value">${tags.outdoor_seating === 'yes' ? 'Yes ✓' : 'No'}</span>`;
                 detailsHTML += '</div>';
             }
             
-            if (tags.wifi) {
+            if (tags.takeaway) {
                 detailsHTML += '<div class="detail-row">';
-                detailsHTML += '<span class="detail-label">WiFi:</span>';
-                detailsHTML += `<span class="detail-value">${tags.wifi === 'yes' || tags.wifi === 'free' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '<span class="detail-label">🥤 Takeaway:</span>';
+                detailsHTML += `<span class="detail-value">${tags.takeaway === 'yes' ? 'Yes ✓' : 'No'}</span>`;
                 detailsHTML += '</div>';
+            }
+            
+            if (tags.delivery) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🚚 Delivery:</span>';
+                detailsHTML += `<span class="detail-value">${tags.delivery === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.internet_access || tags.wifi) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">📶 WiFi:</span>';
+                const wifiValue = tags.internet_access || tags.wifi;
+                detailsHTML += `<span class="detail-value">${wifiValue === 'yes' || wifiValue === 'free' || wifiValue === 'wlan' ? 'Yes ✓' : sanitizeText(wifiValue)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['internet_access:fee']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💰 WiFi Fee:</span>';
+                detailsHTML += `<span class="detail-value">${tags['internet_access:fee'] === 'no' ? 'Free' : 'Paid'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Accessibility
+            if (tags.wheelchair) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">♿ Wheelchair:</span>';
+                detailsHTML += `<span class="detail-value">${tags.wheelchair === 'yes' ? 'Yes ✓' : tags.wheelchair === 'no' ? 'No' : sanitizeText(tags.wheelchair)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Payment methods
+            if (tags['payment:cash']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💵 Cash:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:cash'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['payment:cards']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">💳 Cards:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:cards'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags['payment:credit_cards']) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🏦 Credit Cards:</span>';
+                detailsHTML += `<span class="detail-value">${tags['payment:credit_cards'] === 'yes' ? 'Yes ✓' : 'No'}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // Additional info
+            if (tags.capacity) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">👥 Capacity:</span>';
+                detailsHTML += `<span class="detail-value">${sanitizeText(tags.capacity)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            if (tags.smoking) {
+                detailsHTML += '<div class="detail-row">';
+                detailsHTML += '<span class="detail-label">🚬 Smoking:</span>';
+                detailsHTML += `<span class="detail-value">${tags.smoking === 'no' ? 'No' : sanitizeText(tags.smoking)}</span>`;
+                detailsHTML += '</div>';
+            }
+            
+            // OSM reference
+            const validTypes = ['node', 'way', 'relation'];
+            const elementType = validTypes.includes(element.type) ? element.type : 'node';
+            if (/^\d+$/.test(String(element.id))) {
+                const elementIdNum = parseInt(element.id, 10);
+                if (elementIdNum > 0) {
+                    detailsHTML += '<div class="detail-row">';
+                    detailsHTML += '<span class="detail-label">OSM:</span>';
+                    detailsHTML += `<span class="detail-value"><a href="https://www.openstreetmap.org/${elementType}/${elementIdNum}" target="_blank" rel="noopener noreferrer">${elementType}/${elementIdNum}</a></span>`;
+                    detailsHTML += '</div>';
+                }
             }
             
             detailsHTML += '</div>';
