@@ -180,6 +180,27 @@ body {
     display: block;
 }
 
+.zoom-warning {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: #fff3cd;
+    color: #856404;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border: 1px solid #ffeaa7;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+}
+
+.zoom-warning.active {
+    display: block;
+}
+
 .location-button {
     position: absolute;
     top: 70px;
