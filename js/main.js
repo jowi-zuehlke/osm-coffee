@@ -59,19 +59,21 @@ function init() {
     
     // Add click event listener to heatmap toggle button
     const heatmapToggleBtn = document.getElementById('heatmapToggle');
-    heatmapToggleBtn.addEventListener('click', () => {
-        const isActive = toggleHeatmap();
-        if (isActive) {
-            heatmapToggleBtn.classList.add('active');
-            // Update heatmap with current data
-            const elements = getLastFetchedElements();
-            if (elements) {
-                updateHeatmapData(elements);
+    if (heatmapToggleBtn) {
+        heatmapToggleBtn.addEventListener('click', () => {
+            const isActive = toggleHeatmap();
+            if (isActive) {
+                heatmapToggleBtn.classList.add('active');
+                // Update heatmap with current data
+                const elements = getLastFetchedElements();
+                if (elements) {
+                    updateHeatmapData(elements);
+                }
+            } else {
+                heatmapToggleBtn.classList.remove('active');
             }
-        } else {
-            heatmapToggleBtn.classList.remove('active');
-        }
-    });
+        });
+    }
     
     /**
      * Shows a cafe on the map by panning to it and displaying its details

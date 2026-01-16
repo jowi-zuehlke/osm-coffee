@@ -16,6 +16,12 @@ let isHeatmapVisible = false;
 export function initHeatmap(mapInstance) {
     map = mapInstance;
     
+    // Check if Leaflet.heat plugin is available
+    if (typeof L === 'undefined' || typeof L.heatLayer !== 'function') {
+        console.warn('Leaflet.heat plugin not loaded. Heatmap feature will not be available.');
+        return;
+    }
+    
     // Initialize heatmap layer with configuration
     // Using empty array initially, will be populated when data is available
     heatmapLayer = L.heatLayer([], {
