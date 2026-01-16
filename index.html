@@ -294,6 +294,38 @@
             crossorigin=""></script>
     
     <script>
+        // ============================================================================
+        // CONFIGURATION
+        // ============================================================================
+        
+        /**
+         * Application configuration constants
+         */
+        const CONFIG = {
+            // Default map location (Paris, France)
+            DEFAULT_LOCATION: [48.8566, 2.3522],
+            DEFAULT_ZOOM: 13,
+            USER_LOCATION_ZOOM: 15,
+            
+            // API timeouts (milliseconds)
+            OVERPASS_TIMEOUT: 30000,
+            GEOLOCATION_TIMEOUT: 10000,
+            
+            // Debounce delay for map movements (milliseconds)
+            MAP_MOVE_DEBOUNCE: 500,
+            
+            // Icon sizes
+            MARKER_SIZE: 32,
+            
+            // Marker colors
+            COLORS: {
+                CAFE: '#8B4513',
+                ROASTERY: '#D2691E',
+                SHOP: '#228B22',
+                USER_LOCATION: '#4285F4'
+            }
+        };
+        
         // Filter state - all types enabled by default
         const filterState = {
             cafe: true,
@@ -301,8 +333,12 @@
             roastery: true
         };
         
+        // ============================================================================
+        // MAP INITIALIZATION
+        // ============================================================================
+        
         // Initialize the map - centered on Paris, France (default location, will update to user's location if available)
-        const map = L.map('map').setView([48.8566, 2.3522], 13);
+        const map = L.map('map').setView(CONFIG.DEFAULT_LOCATION, CONFIG.DEFAULT_ZOOM);
         
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -316,30 +352,31 @@
         // Variable to store user location marker
         let userLocationMarker = null;
         
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+        
+        /**
+         * Creates a custom div icon for map markers
+         * @param {string} emoji - The emoji to display in the marker
+         * @param {string} backgroundColor - The background color of the marker
+         * @returns {L.DivIcon} Leaflet div icon
+         */
+        function createMarkerIcon(emoji, backgroundColor) {
+            const size = CONFIG.MARKER_SIZE;
+            return L.divIcon({
+                html: `<div style="background: ${backgroundColor}; color: white; width: ${size}px; height: ${size}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`,
+                className: 'custom-icon',
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2],
+                popupAnchor: [0, -size / 2]
+            });
+        }
+        
         // Custom icons for cafes and roasteries
-        const cafeIcon = L.divIcon({
-            html: '<div style="background: #8B4513; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">☕</div>',
-            className: 'custom-icon',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        });
-        
-        const roasteryIcon = L.divIcon({
-            html: '<div style="background: #D2691E; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🔥</div>',
-            className: 'custom-icon',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        });
-        
-        const shopIcon = L.divIcon({
-            html: '<div style="background: #228B22; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🏪</div>',
-            className: 'custom-icon',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        });
+        const cafeIcon = createMarkerIcon('☕', CONFIG.COLORS.CAFE);
+        const roasteryIcon = createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY);
+        const shopIcon = createMarkerIcon('🏪', CONFIG.COLORS.SHOP);
         
         // Function to display cafe details in sidebar
         function showCafeDetails(element) {
