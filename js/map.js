@@ -10,6 +10,8 @@ import { fetchCoffeeLocations, getElementCoordinates } from './api.js';
 // Map and layer variables
 let map;
 let coffeeMarkers;
+let lastFetchedElements = [];
+let icons;
 
 /**
  * Creates a custom div icon for map markers
@@ -29,13 +31,21 @@ function createMarkerIcon(emoji, backgroundColor, borderWidth = 2) {
     });
 }
 
-// Custom icons for different location types
-const icons = {
-    cafe: createMarkerIcon('☕', CONFIG.COLORS.CAFE),
-    roastery: createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY),
-    shop: createMarkerIcon('🏪', CONFIG.COLORS.SHOP),
-    userLocation: createMarkerIcon('📍', CONFIG.COLORS.USER_LOCATION, 3)
-};
+/**
+ * Initializes custom icons for different location types
+ * Called after Leaflet is loaded
+ */
+function initIcons() {
+    if (!icons) {
+        icons = {
+            cafe: createMarkerIcon('☕', CONFIG.COLORS.CAFE),
+            roastery: createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY),
+            shop: createMarkerIcon('🏪', CONFIG.COLORS.SHOP),
+            userLocation: createMarkerIcon('📍', CONFIG.COLORS.USER_LOCATION, 3)
+        };
+    }
+    return icons;
+}
 
 /**
  * Determines the appropriate icon for a location based on type
@@ -90,6 +100,9 @@ async function updateCoffeeMarkers() {
         const bounds = map.getBounds();
         const elements = await fetchCoffeeLocations(bounds);
         
+        // Store fetched elements for heatmap
+        lastFetchedElements = elements;
+        
         // Clear existing coffee markers
         coffeeMarkers.clearLayers();
         
@@ -112,6 +125,9 @@ async function updateCoffeeMarkers() {
  * @returns {Object} Object containing map, updateCoffeeMarkers function, and helper functions
  */
 export function initMap() {
+    // Initialize icons first (after Leaflet is loaded)
+    initIcons();
+    
     // Initialize the map
     map = L.map('map').setView(CONFIG.DEFAULT_LOCATION, CONFIG.DEFAULT_ZOOM);
     
@@ -129,7 +145,8 @@ export function initMap() {
         updateCoffeeMarkers,
         getIconForType,
         icons,
-        panToLocation
+        panToLocation,
+        getLastFetchedElements: () => lastFetchedElements
     };
 }
 

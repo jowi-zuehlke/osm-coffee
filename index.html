@@ -61,6 +61,11 @@
                 <div class="legend-icon roastery-icon">🔥</div>
                 <span>Roastery</span>
             </div>
+            <div class="legend-divider"></div>
+            <button class="heatmap-toggle" id="heatmapToggle">
+                <span class="heatmap-icon">🌡️</span>
+                <span>Heatmap</span>
+            </button>
         </div>
     </div>
     
@@ -68,6 +73,11 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+    
+    <!-- Leaflet.heat plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"
+            integrity="sha256-65UqrlgGoRAnKfKRuriH3eeDrOhZgZo1SCenduc+SGo="
+            crossorigin="anonymous"></script>
     
     <!-- Application JS (ES6 Modules) -->
     <script type="module" src="js/main.js"></script>

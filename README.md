@@ -11,6 +11,7 @@ A single page application that displays an interactive map highlighting cafes an
 - ☕ Displays cafes (places to sit and drink) with coffee cup markers
 - 🏪 Displays coffee shops (retail stores selling coffee products) with shop markers
 - 🔥 Displays roasteries with flame markers
+- 🌡️ Heatmap overlay showing coffee infrastructure density (toggle on/off)
 - 📍 Automatically detects user location (with permission)
 - 🔄 Updates markers when panning/zooming the map
 - 💬 Click markers for detailed information (name, hours, address, website)
@@ -35,7 +36,8 @@ osm-coffee/
 │   ├── map.js             # Map initialization and marker management
 │   ├── geolocation.js     # User location tracking
 │   ├── filters.js         # Location type filtering
-│   └── favorites.js       # Favorites management (localStorage)
+│   ├── favorites.js       # Favorites management (localStorage)
+│   └── heatmap.js         # Heatmap overlay management
 └── README.md
 ```
 
@@ -47,6 +49,7 @@ osm-coffee/
 5. Click the ❤️ button in cafe details to save it as a favorite
 6. View your favorites in the "⭐ Favorites" section at the top of the sidebar
 7. Click on a favorite to pan the map to that location and show its details
+8. Toggle the heatmap overlay (🌡️ button in legend) to visualize coffee density
 
 ## Running Locally
 Serve the application with any HTTP server:
@@ -68,6 +71,7 @@ npx http-server
 - CSS3
 - JavaScript (ES6 Modules, Vanilla JS)
 - Leaflet.js (OpenStreetMap library, loaded via CDN)
+- Leaflet.heat (heatmap plugin, loaded via CDN)
 - Overpass API (OpenStreetMap data query)
 
 ## Code Organization
@@ -81,6 +85,7 @@ The codebase is organized into modular JavaScript files to improve maintainabili
 - **geolocation.js**: Browser geolocation features
 - **filters.js**: Location type filtering logic
 - **favorites.js**: Favorites management with localStorage persistence
+- **heatmap.js**: Heatmap overlay with translucent gradient visualization
 - **main.js**: Application initialization and event wiring
 
 ## Data Source
