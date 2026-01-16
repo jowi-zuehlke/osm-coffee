@@ -78,6 +78,11 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
    - Color: #D2691E (chocolate)
    - Description: Coffee roasting facilities
 
+4. **Sandwich Shops** (amenity=fast_food, cuisine=sandwich)
+   - Icon: 🥪 (sandwich emoji)
+   - Color: #FF6B6B (coral red)
+   - Description: Fast food establishments specializing in sandwiches
+
 **Features:**
 - Custom div-based markers (32x32 pixels)
 - Emoji icons for visual distinction
@@ -237,7 +242,7 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 **Description:** Toggle visibility of different location types using interactive legend.
 
 **Features:**
-- Legend panel with three location types
+- Legend panel with four location types
 - Click to toggle each type on/off
 - Visual feedback (opacity + strikethrough when disabled)
 - All types enabled by default
@@ -249,6 +254,7 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 1. Cafe ☕ (brown circle)
 2. Coffee Shop 🏪 (green circle)
 3. Roastery 🔥 (orange circle)
+4. Sandwich Shop 🥪 (coral red circle)
 
 **Visual States:**
 - Active: Full opacity, normal text
@@ -401,6 +407,7 @@ CONFIG = {
         CAFE: '#8B4513',
         ROASTERY: '#D2691E',
         SHOP: '#228B22',
+        SANDWICH: '#FF6B6B',
         USER_LOCATION: '#4285F4'
     }
 }
@@ -408,7 +415,8 @@ CONFIG = {
 filterState = {
     cafe: true,
     shop: true,
-    roastery: true
+    roastery: true,
+    sandwich: true
 }
 ```
 
@@ -460,6 +468,8 @@ main.js
   way["shop"="coffee"](south,west,north,east);
   node["craft"="roaster"](south,west,north,east);
   way["craft"="roaster"](south,west,north,east);
+  node["amenity"="fast_food"]["cuisine"="sandwich"](south,west,north,east);
+  way["amenity"="fast_food"]["cuisine"="sandwich"](south,west,north,east);
 );
 out center;
 ```
@@ -583,6 +593,7 @@ out center;
 - Saddle Brown: #8B4513 (cafe markers)
 - Chocolate: #D2691E (roastery markers)
 - Forest Green: #228B22 (shop markers)
+- Coral Red: #FF6B6B (sandwich shop markers)
 - Google Blue: #4285F4 (user location)
 
 **Neutral Colors:**
@@ -819,6 +830,7 @@ transition: background-color 0.2s;
 | amenity | cafe | Cafes and coffee shops (sit-down) |
 | shop | coffee | Retail coffee shops |
 | craft | roaster | Coffee roasting facilities |
+| amenity + cuisine | fast_food + sandwich | Fast food establishments specializing in sandwiches |
 
 **Additional Tags Displayed:**
 - **Basic Info:** name

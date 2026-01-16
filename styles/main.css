@@ -275,6 +275,10 @@ body {
     background: #228B22;
 }
 
+.sandwich-icon {
+    background: #FF6B6B;
+}
+
 .loading {
     position: absolute;
     top: 20px;
