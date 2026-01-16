@@ -123,6 +123,7 @@ export function initMap() {
         cafe: createMarkerIcon('☕', CONFIG.COLORS.CAFE),
         roastery: createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY),
         shop: createMarkerIcon('🏪', CONFIG.COLORS.SHOP),
+        sandwich: createMarkerIcon('🥪', CONFIG.COLORS.SANDWICH),
         userLocation: createMarkerIcon('📍', CONFIG.COLORS.USER_LOCATION, 3)
     };
     

@@ -25,6 +25,8 @@ function buildOverpassQuery(bounds) {
           way["shop"="coffee"](${south},${west},${north},${east});
           node["craft"="roaster"](${south},${west},${north},${east});
           way["craft"="roaster"](${south},${west},${north},${east});
+          node["amenity"="fast_food"]["cuisine"="sandwich"](${south},${west},${north},${east});
+          way["amenity"="fast_food"]["cuisine"="sandwich"](${south},${west},${north},${east});
         );
         out center;
     `;
