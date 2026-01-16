@@ -10,6 +10,7 @@ import { fetchCoffeeLocations, getElementCoordinates } from './api.js';
 // Map and layer variables
 let map;
 let coffeeMarkers;
+let icons; // Will be initialized in initMap()
 
 /**
  * Creates a custom div icon for map markers
@@ -28,14 +29,6 @@ function createMarkerIcon(emoji, backgroundColor, borderWidth = 2) {
         popupAnchor: [0, -size / 2]
     });
 }
-
-// Custom icons for different location types
-const icons = {
-    cafe: createMarkerIcon('☕', CONFIG.COLORS.CAFE),
-    roastery: createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY),
-    shop: createMarkerIcon('🏪', CONFIG.COLORS.SHOP),
-    userLocation: createMarkerIcon('📍', CONFIG.COLORS.USER_LOCATION, 3)
-};
 
 /**
  * Determines the appropriate icon for a location based on type
@@ -123,6 +116,15 @@ export function initMap() {
     
     // Layer group for coffee markers
     coffeeMarkers = L.layerGroup().addTo(map);
+    
+    // Initialize custom icons for different location types
+    // This must be done here after Leaflet is loaded, not at module load time
+    icons = {
+        cafe: createMarkerIcon('☕', CONFIG.COLORS.CAFE),
+        roastery: createMarkerIcon('🔥', CONFIG.COLORS.ROASTERY),
+        shop: createMarkerIcon('🏪', CONFIG.COLORS.SHOP),
+        userLocation: createMarkerIcon('📍', CONFIG.COLORS.USER_LOCATION, 3)
+    };
     
     return {
         map,
