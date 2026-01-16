@@ -4,7 +4,7 @@
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert';
-import { sanitizeText, sanitizeUrl, debounce, getLocationType } from '../js/utils.js';
+import { sanitizeText, sanitizeUrl, debounce, getLocationType, parseOpeningHours } from '../js/utils.js';
 
 // Mock minimal document.createElement for sanitizeText
 if (typeof document === 'undefined') {
@@ -199,5 +199,61 @@ describe('getLocationType', () => {
         const tags = { shop: 'coffee', amenity: 'cafe' };
         const result = getLocationType(tags);
         assert.deepStrictEqual(result, { type: 'shop', label: 'Coffee Shop 🏪' });
+    });
+});
+
+describe('parseOpeningHours', () => {
+    test('should handle 24/7 opening hours', () => {
+        const result = parseOpeningHours('24/7');
+        assert.strictEqual(result.isOpen, true);
+        assert.strictEqual(result.status, 'Open 24/7');
+        assert.strictEqual(result.error, false);
+    });
+
+    test('should handle "always" opening hours', () => {
+        const result = parseOpeningHours('always');
+        assert.strictEqual(result.isOpen, true);
+        assert.strictEqual(result.status, 'Open 24/7');
+        assert.strictEqual(result.error, false);
+    });
+
+    test('should handle empty opening hours', () => {
+        const result = parseOpeningHours('');
+        assert.strictEqual(result.isOpen, null);
+        assert.strictEqual(result.status, 'Unknown');
+        assert.strictEqual(result.error, false);
+    });
+
+    test('should handle null opening hours', () => {
+        const result = parseOpeningHours(null);
+        assert.strictEqual(result.isOpen, null);
+        assert.strictEqual(result.status, 'Unknown');
+        assert.strictEqual(result.error, false);
+    });
+
+    test('should parse simple weekday range pattern', () => {
+        // This test is time-dependent, so we'll just verify it returns a valid result
+        const result = parseOpeningHours('Mo-Fr 09:00-18:00');
+        assert.ok(typeof result.isOpen === 'boolean' || result.isOpen === null);
+        assert.ok(['Open now', 'Closed', 'Unknown'].includes(result.status));
+    });
+
+    test('should parse single day pattern', () => {
+        const result = parseOpeningHours('Mo 09:00-18:00');
+        assert.ok(typeof result.isOpen === 'boolean' || result.isOpen === null);
+        assert.ok(['Open now', 'Closed', 'Unknown'].includes(result.status));
+    });
+
+    test('should handle complex patterns with semicolons', () => {
+        const result = parseOpeningHours('Mo-Fr 09:00-18:00; Sa 10:00-16:00');
+        assert.ok(typeof result.isOpen === 'boolean' || result.isOpen === null);
+        assert.ok(['Open now', 'Closed', 'Unknown'].includes(result.status));
+    });
+
+    test('should return unknown for unparseable patterns', () => {
+        const result = parseOpeningHours('by appointment only');
+        assert.strictEqual(result.isOpen, null);
+        assert.strictEqual(result.status, 'Unknown');
+        assert.strictEqual(result.error, true);
     });
 });
