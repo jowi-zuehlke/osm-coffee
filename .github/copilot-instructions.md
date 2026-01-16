@@ -27,7 +27,9 @@ osm-coffee/
 │   ├── map.js             # Map initialization and marker management
 │   ├── geolocation.js     # User location tracking
 │   └── filters.js         # Location type filtering
-└── README.md
+├── README.md              # Project overview and setup instructions
+├── ARCHITECTURE.md        # Technical architecture documentation
+└── SPECIFICATION.md       # Complete feature and technical specifications
 ```
 
 ## Development Workflow
@@ -173,6 +175,86 @@ The project is deployed automatically via GitHub Actions:
 3. Add UI logic to `ui.js`
 4. Wire up events in `main.js` or relevant module
 
+### Maintaining Documentation
+
+**CRITICAL: Always update SPECIFICATION.md when making changes to the application.**
+
+The `SPECIFICATION.md` file is the authoritative source of truth for all application features, technical details, and specifications. It must be kept in sync with the codebase at all times.
+
+**When to Update SPECIFICATION.md:**
+
+1. **Adding New Features**
+   - Add new functional requirement (FR#) with priority, description, features, and acceptance criteria
+   - Update relevant technical specifications
+   - Update UI specifications if visual changes are made
+   - Add to "Future Enhancements" if partially implemented
+
+2. **Modifying Existing Features**
+   - Update the corresponding functional requirement section
+   - Update acceptance criteria if behavior changes
+   - Update technical specifications if implementation changes
+   - Document any breaking changes
+
+3. **Changing Configuration**
+   - Update "Configuration Constants" section in Technical Specifications
+   - Update any affected functional requirements
+   - Update deployment configuration if needed
+
+4. **Adding/Removing Modules**
+   - Update "Module Structure" section
+   - Update dependency graph
+   - Update module descriptions in Architecture section
+   - Update project structure in README.md as well
+
+5. **Changing UI/Styling**
+   - Update "User Interface Specifications" section
+   - Update color palette if colors change
+   - Update component specifications
+   - Update responsive design specifications if breakpoints change
+
+6. **Security Changes**
+   - Update "Security Requirements" section
+   - Document new security measures
+   - Update limitations if applicable
+
+7. **API/Integration Changes**
+   - Update "Data Sources and Integration" section
+   - Update API query structure
+   - Update error handling documentation
+
+8. **Deployment Changes**
+   - Update "Deployment" section
+   - Update workflow descriptions
+   - Update hosting platform details
+
+**How to Update SPECIFICATION.md:**
+
+1. Locate the relevant section(s) affected by your changes
+2. Update the specific subsections with accurate, detailed information
+3. Maintain consistent formatting and structure
+4. Use the same level of detail as existing sections
+5. Update version history at the end if it's a major change
+6. Commit SPECIFICATION.md changes in the same PR as code changes
+
+**Example Workflow:**
+```
+1. Make code changes (e.g., add new filter type)
+2. Test the changes
+3. Update SPECIFICATION.md:
+   - Add new filter to FR6: Location Type Filters
+   - Update filter list in config.js documentation
+   - Update UI specifications for new legend item
+4. Commit both code and SPECIFICATION.md together
+5. Verify documentation matches implementation
+```
+
+**Documentation Quality Standards:**
+- Be precise and specific (include exact values, colors, timeouts)
+- Use consistent terminology throughout
+- Include acceptance criteria for features
+- Document both happy path and error cases
+- Keep technical accuracy as top priority
+
 ## Working with Multiple Agents
 
 The modular structure is designed to minimize conflicts when multiple agents work on the code:
@@ -196,3 +278,9 @@ When working on a feature:
 - [Overpass API Documentation](https://wiki.openstreetmap.org/wiki/Overpass_API)
 - [Live Application](https://jowi-zuehlke.github.io/osm-coffee/)
 - [MDN ES6 Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+
+## Documentation Files
+
+- **README.md** - Quick start guide, features overview, and basic usage
+- **ARCHITECTURE.md** - Technical architecture, module design, data flow, and extensibility
+- **SPECIFICATION.md** - Complete application specification including all functional requirements, technical specs, UI/UX details, security, and deployment (MUST be kept updated with all changes)
