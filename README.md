@@ -21,6 +21,9 @@ A single page application that displays an interactive map highlighting cafes an
 ```
 osm-coffee/
 ├── index.html              # Main HTML file
+├── favicon.svg             # Favicon (SVG format)
+├── favicon.ico             # Favicon (ICO format, fallback)
+├── favicon.png             # Favicon source (PNG, 32x32)
 ├── styles/
 │   └── main.css           # Application styles
 ├── js/
