@@ -72,16 +72,21 @@ export function updateHeatmapData(elements) {
         })
         .filter(point => point !== null);
     
-    // Store the data
+    console.log('updateHeatmapData called with', elements.length, 'elements, converted to', heatmapPoints.length, 'points');
+    
+    // ALWAYS store the data (even if not visible)
     currentHeatmapData = heatmapPoints;
     
-    // Only update the layer if it's currently visible
+    // Only update the layer if it's currently visible and attached to map
     if (isHeatmapVisible && heatmapLayer._map) {
+        console.log('Heatmap is visible, updating layer');
         try {
             heatmapLayer.setLatLngs(heatmapPoints);
         } catch (error) {
             console.warn('Error updating heatmap:', error);
         }
+    } else {
+        console.log('Heatmap not visible or not attached, data stored for later. Visible:', isHeatmapVisible, 'Has map:', !!heatmapLayer._map);
     }
 }
 
@@ -95,17 +100,23 @@ export function toggleHeatmap() {
     isHeatmapVisible = !isHeatmapVisible;
     
     if (isHeatmapVisible) {
+        console.log('Toggling heatmap ON, data points:', currentHeatmapData.length);
         // Set the data BEFORE adding to map
         if (currentHeatmapData.length > 0) {
             try {
                 heatmapLayer.setLatLngs(currentHeatmapData);
+                console.log('Set', currentHeatmapData.length, 'points to heatmap layer');
             } catch (error) {
                 console.warn('Error setting heatmap data:', error);
             }
+        } else {
+            console.warn('No heatmap data available yet');
         }
         // Then add to map
         heatmapLayer.addTo(map);
+        console.log('Heatmap layer added to map');
     } else {
+        console.log('Toggling heatmap OFF');
         // Remove from map
         map.removeLayer(heatmapLayer);
     }
