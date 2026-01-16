@@ -422,7 +422,7 @@ filterState = {
 2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection, opening hours parsing)
 3. **ui.js** - UI functions for sidebar and detail display (including opening hours status indicator)
 4. **api.js** - Overpass API communication
-5. **map.js** - Leaflet map and marker management
+5. **map.js** - Leaflet map and marker management (icons initialized lazily in initMap() to avoid race conditions)
 6. **geolocation.js** - Browser geolocation features
 7. **filters.js** - Location type filtering logic
 8. **favorites.js** - Favorites management and local storage
@@ -895,11 +895,12 @@ transition: background-color 0.2s;
 2. Leaflet.js loads from CDN
 3. main.js loads as ES6 module
 4. Module dependencies resolve
-5. Map initializes with default location
-6. Geolocation attempts (optional)
-7. Initial data fetch for default view
-8. Markers render on map
-9. Event listeners attached
+5. Joke displays immediately (independent of map)
+6. Map initializes with default location (icons created lazily)
+7. Geolocation attempts (optional)
+8. Initial data fetch for default view
+9. Markers render on map
+10. Event listeners attached
 
 **Map Movement:**
 1. User pans/zooms map
