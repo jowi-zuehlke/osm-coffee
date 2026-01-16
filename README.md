@@ -85,3 +85,21 @@ Coffee location data is fetched from OpenStreetMap via the Overpass API, queryin
 - `amenity=cafe` - Cafes and coffee shops where you can sit and consume beverages
 - `shop=coffee` - Retail shops selling coffee beans, ground coffee, and equipment
 - `craft=roaster` - Coffee roasting facilities
+
+## Testing
+
+The project includes comprehensive unit tests for all business logic modules.
+
+**Run tests:**
+```bash
+npm test                # Run all tests once
+npm run test:watch      # Run tests in watch mode (automatic re-run on changes)
+```
+
+**Test coverage:**
+- `utils.js` - Sanitization, debouncing, location type detection
+- `favorites.js` - localStorage operations, add/remove/toggle favorites
+- `filters.js` - Filter state management and DOM updates
+- `api.js` - Coordinate extraction and data parsing
+
+Tests run automatically in CI/CD on every pull request to ensure code quality.
