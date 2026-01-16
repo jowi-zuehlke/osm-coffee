@@ -14,6 +14,7 @@ A single page application that displays an interactive map highlighting cafes an
 - 📍 Automatically detects user location (with permission)
 - 🔄 Updates markers when panning/zooming the map
 - 💬 Click markers for detailed information (name, hours, address, website)
+- ⭐ Save favorite cafes for quick access (persists in browser storage)
 - 📱 Responsive design works on mobile and desktop
 
 ## Project Structure
@@ -30,7 +31,8 @@ osm-coffee/
 │   ├── api.js             # OpenStreetMap API integration
 │   ├── map.js             # Map initialization and marker management
 │   ├── geolocation.js     # User location tracking
-│   └── filters.js         # Location type filtering
+│   ├── filters.js         # Location type filtering
+│   └── favorites.js       # Favorites management (localStorage)
 └── README.md
 ```
 
@@ -39,6 +41,9 @@ osm-coffee/
 2. Allow location access (optional) for a personalized starting view
 3. Pan and zoom the map to explore coffee locations
 4. Click on markers to see details about each cafe or roastery
+5. Click the ❤️ button in cafe details to save it as a favorite
+6. View your favorites in the "⭐ Favorites" section at the top of the sidebar
+7. Click on a favorite to pan the map to that location and show its details
 
 ## Running Locally
 Serve the application with any HTTP server:
@@ -67,11 +72,12 @@ The codebase is organized into modular JavaScript files to improve maintainabili
 
 - **config.js**: Centralized configuration (colors, timeouts, default locations)
 - **utils.js**: Reusable utility functions (sanitization, debouncing, type detection)
-- **ui.js**: All UI-related code (sidebar, detail rows, HTML generation)
+- **ui.js**: All UI-related code (sidebar, detail rows, HTML generation, favorites list)
 - **api.js**: API communication with Overpass (query building, data fetching)
 - **map.js**: Leaflet map initialization, marker creation and management
 - **geolocation.js**: Browser geolocation features
 - **filters.js**: Location type filtering logic
+- **favorites.js**: Favorites management with localStorage persistence
 - **main.js**: Application initialization and event wiring
 
 ## Data Source
