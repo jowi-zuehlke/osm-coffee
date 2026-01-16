@@ -8,6 +8,7 @@ import { CONFIG } from './config.js';
 let heatmapLayer = null;
 let map = null;
 let isHeatmapVisible = false;
+let currentHeatmapData = []; // Store current data
 
 /**
  * Initializes the heatmap layer
@@ -49,10 +50,6 @@ export function initHeatmap(mapInstance) {
 export function updateHeatmapData(elements) {
     if (!heatmapLayer) return;
     
-    // Only update if heatmap is visible and attached to a map
-    // Check both isHeatmapVisible flag and that the layer has a map reference
-    if (!isHeatmapVisible || !heatmapLayer._map) return;
-    
     // Convert elements to lat/lng points for heatmap
     const heatmapPoints = elements
         .map(element => {
@@ -75,8 +72,17 @@ export function updateHeatmapData(elements) {
         })
         .filter(point => point !== null);
     
-    // Update heatmap layer with new points
-    heatmapLayer.setLatLngs(heatmapPoints);
+    // Store the data
+    currentHeatmapData = heatmapPoints;
+    
+    // Only update the layer if it's currently visible
+    if (isHeatmapVisible && heatmapLayer._map) {
+        try {
+            heatmapLayer.setLatLngs(heatmapPoints);
+        } catch (error) {
+            console.warn('Error updating heatmap:', error);
+        }
+    }
 }
 
 /**
@@ -89,8 +95,18 @@ export function toggleHeatmap() {
     isHeatmapVisible = !isHeatmapVisible;
     
     if (isHeatmapVisible) {
+        // Set the data BEFORE adding to map
+        if (currentHeatmapData.length > 0) {
+            try {
+                heatmapLayer.setLatLngs(currentHeatmapData);
+            } catch (error) {
+                console.warn('Error setting heatmap data:', error);
+            }
+        }
+        // Then add to map
         heatmapLayer.addTo(map);
     } else {
+        // Remove from map
         map.removeLayer(heatmapLayer);
     }
     

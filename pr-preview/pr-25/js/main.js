@@ -26,30 +26,34 @@ function init() {
     // Initialize geolocation
     initGeolocation(map, icons.userLocation);
     
-    // Initial data load - this is async but we don't need to wait
+    // Initial data load
     updateCoffeeMarkers();
     
     // Debounced function to prevent excessive API calls during map movement
-    const debouncedUpdate = debounce(async () => {
-        await updateCoffeeMarkers();
-        // Update heatmap with the same data (after markers are updated)
-        const elements = getLastFetchedElements();
-        if (elements && elements.length > 0) {
-            updateHeatmapData(elements);
-        }
+    const debouncedUpdate = debounce(() => {
+        updateCoffeeMarkers();
+        // Update heatmap data after markers are updated (with slight delay)
+        setTimeout(() => {
+            const elements = getLastFetchedElements();
+            if (elements && elements.length > 0) {
+                updateHeatmapData(elements);
+            }
+        }, 100);
     }, CONFIG.MAP_MOVE_DEBOUNCE);
     
     // Reload coffee locations when map is moved
     map.on('moveend', debouncedUpdate);
     
-    // Initialize filters with callback that updates both markers and heatmap
-    initFilters(async () => {
-        await updateCoffeeMarkers();
-        // Update heatmap with filtered data (after markers are updated)
-        const elements = getLastFetchedElements();
-        if (elements && elements.length > 0) {
-            updateHeatmapData(elements);
-        }
+    // Initialize filters
+    initFilters(() => {
+        updateCoffeeMarkers();
+        // Update heatmap data after markers are updated (with slight delay)
+        setTimeout(() => {
+            const elements = getLastFetchedElements();
+            if (elements && elements.length > 0) {
+                updateHeatmapData(elements);
+            }
+        }, 100);
     });
     
     // Add click event listener to location button
@@ -61,21 +65,17 @@ function init() {
     const heatmapToggleBtn = document.getElementById('heatmapToggle');
     if (heatmapToggleBtn) {
         heatmapToggleBtn.addEventListener('click', () => {
-            // Toggle visibility first to know the new state
             const isActive = toggleHeatmap();
             
             if (isActive) {
                 heatmapToggleBtn.classList.add('active');
-                // Use setTimeout to ensure layer is fully attached to map before updating data
-                setTimeout(() => {
-                    const elements = getLastFetchedElements();
-                    if (elements && elements.length > 0) {
-                        updateHeatmapData(elements);
-                    } else {
-                        // If no data, show a console message for debugging
-                        console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
-                    }
-                }, 0);
+                // Update heatmap data after toggling on
+                const elements = getLastFetchedElements();
+                if (elements && elements.length > 0) {
+                    updateHeatmapData(elements);
+                } else {
+                    console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
+                }
             } else {
                 heatmapToggleBtn.classList.remove('active');
             }
