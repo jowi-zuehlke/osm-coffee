@@ -68,6 +68,22 @@ function createCoffeeMarker(element, lat, lon) {
  */
 async function updateCoffeeMarkers() {
     const loading = document.getElementById('loading');
+    const zoomWarning = document.getElementById('zoomWarning');
+    const currentZoom = map.getZoom();
+    
+    // Check if zoom level is sufficient
+    if (currentZoom < CONFIG.MIN_ZOOM_FOR_LOCATIONS) {
+        // Clear existing markers
+        coffeeMarkers.clearLayers();
+        
+        // Show zoom warning, hide loading
+        zoomWarning.classList.add('active');
+        loading.classList.remove('active');
+        return;
+    }
+    
+    // Hide zoom warning if zoom is sufficient
+    zoomWarning.classList.remove('active');
     loading.classList.add('active');
     
     try {
