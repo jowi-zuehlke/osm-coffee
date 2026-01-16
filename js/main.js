@@ -7,14 +7,16 @@ import { debounce } from './utils.js';
 import { initMap } from './map.js';
 import { initGeolocation, showUserLocation } from './geolocation.js';
 import { initFilters } from './filters.js';
+import { loadFavorites } from './favorites.js';
+import { renderFavoritesList } from './ui.js';
 
 /**
  * Initializes the application
- * Sets up the map, geolocation, filters, and event handlers
+ * Sets up the map, geolocation, filters, favorites, and event handlers
  */
 function init() {
     // Initialize map
-    const { map, updateCoffeeMarkers, icons } = initMap();
+    const { map, updateCoffeeMarkers, icons, showCafeOnMap } = initMap();
     
     // Initialize geolocation
     initGeolocation(map, icons.userLocation);
@@ -35,6 +37,20 @@ function init() {
     document.getElementById('locationBtn').addEventListener('click', () => {
         showUserLocation(icons.userLocation);
     });
+    
+    // Initialize favorites
+    function updateFavoritesList() {
+        const favorites = loadFavorites();
+        renderFavoritesList(favorites, (element) => {
+            showCafeOnMap(element);
+        });
+    }
+    
+    // Initial render of favorites
+    updateFavoritesList();
+    
+    // Listen for favorites changes
+    window.addEventListener('favoritesChanged', updateFavoritesList);
 }
 
 // Initialize when DOM is ready

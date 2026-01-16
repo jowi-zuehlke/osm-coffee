@@ -3,6 +3,18 @@
  */
 
 import { sanitizeText, sanitizeUrl } from './utils.js';
+import { isFavorite, toggleFavorite } from './favorites.js';
+
+// Store current element for reference
+let currentElement = null;
+
+/**
+ * Gets the current element being displayed
+ * @returns {Object|null} The current OSM element
+ */
+export function getCurrentElement() {
+    return currentElement;
+}
 
 /**
  * Creates a detail row HTML string for the sidebar
@@ -226,6 +238,7 @@ function generateOSMReferenceHTML(element) {
  * @param {Object} element - The OSM element containing cafe information
  */
 export function showCafeDetails(element) {
+    currentElement = element;
     const tags = element.tags || {};
     const name = tags.name || 'Unnamed';
     
@@ -242,8 +255,15 @@ export function showCafeDetails(element) {
     const detailsDiv = document.getElementById('details');
     detailsDiv.classList.remove('empty');
     
+    const isFav = isFavorite(element);
+    const heartIcon = isFav ? '❤️' : '🤍';
+    const favClass = isFav ? 'favorited' : '';
+    
     let html = '<div id="details-content">';
-    html += `<h2>${sanitizeText(name)}</h2>`;
+    html += '<h2>';
+    html += `<span>${sanitizeText(name)}</span>`;
+    html += `<button class="favorite-btn ${favClass}" id="favorite-toggle" title="Toggle favorite">${heartIcon}</button>`;
+    html += '</h2>';
     html += createDetailRow('Type', typeLabel);
     
     // Add all sections
@@ -261,4 +281,62 @@ export function showCafeDetails(element) {
     html += '</div>';
     
     detailsDiv.innerHTML = html;
+    
+    // Add event listener to favorite button
+    const favoriteBtn = document.getElementById('favorite-toggle');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', () => {
+            const nowFavorited = toggleFavorite(element);
+            favoriteBtn.textContent = nowFavorited ? '❤️' : '🤍';
+            favoriteBtn.classList.toggle('favorited', nowFavorited);
+        });
+    }
+}
+
+/**
+ * Renders the favorites list in the sidebar
+ * @param {Array} favorites - Array of favorite cafe elements
+ * @param {Function} onFavoriteClick - Callback when a favorite is clicked
+ */
+export function renderFavoritesList(favorites, onFavoriteClick) {
+    const favoritesListDiv = document.getElementById('favorites-list');
+    
+    if (!favorites || favorites.length === 0) {
+        favoritesListDiv.classList.add('empty');
+        favoritesListDiv.innerHTML = '<p>No favorites yet. Click the ❤️ button on a cafe to add it here!</p>';
+        return;
+    }
+    
+    favoritesListDiv.classList.remove('empty');
+    
+    let html = '';
+    favorites.forEach((element, index) => {
+        const tags = element.tags || {};
+        const name = tags.name || 'Unnamed';
+        
+        // Determine the type emoji
+        let typeEmoji;
+        if (tags.craft === 'roaster') {
+            typeEmoji = '🔥';
+        } else if (tags.shop === 'coffee') {
+            typeEmoji = '🏪';
+        } else {
+            typeEmoji = '☕';
+        }
+        
+        html += `<div class="favorite-item" data-index="${index}">`;
+        html += `<span class="favorite-item-name">${sanitizeText(name)}</span>`;
+        html += `<span class="favorite-item-type">${typeEmoji}</span>`;
+        html += '</div>';
+    });
+    
+    favoritesListDiv.innerHTML = html;
+    
+    // Add click handlers to favorite items
+    favoritesListDiv.querySelectorAll('.favorite-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const index = parseInt(item.getAttribute('data-index'), 10);
+            onFavoriteClick(favorites[index]);
+        });
+    });
 }
