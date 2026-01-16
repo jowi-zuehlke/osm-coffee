@@ -16,6 +16,7 @@ A single page application that displays an interactive map highlighting cafes an
 - 💬 Click markers for detailed information (name, hours, address, website)
 - ⭐ Save favorite cafes for quick access (persists in browser storage)
 - 📱 Responsive design works on mobile and desktop
+- 😄 Random coffee jokes in the footer for a fun touch
 
 ## Project Structure
 ```
@@ -35,7 +36,8 @@ osm-coffee/
 │   ├── map.js             # Map initialization and marker management
 │   ├── geolocation.js     # User location tracking
 │   ├── filters.js         # Location type filtering
-│   └── favorites.js       # Favorites management (localStorage)
+│   ├── favorites.js       # Favorites management (localStorage)
+│   └── jokes.js           # Coffee jokes for footer
 └── README.md
 ```
 
@@ -81,6 +83,7 @@ The codebase is organized into modular JavaScript files to improve maintainabili
 - **geolocation.js**: Browser geolocation features
 - **filters.js**: Location type filtering logic
 - **favorites.js**: Favorites management with localStorage persistence
+- **jokes.js**: Collection of coffee jokes displayed randomly in footer
 - **main.js**: Application initialization and event wiring
 
 ## Data Source

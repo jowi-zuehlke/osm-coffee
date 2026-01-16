@@ -319,6 +319,41 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 
 ---
 
+### FR9: Coffee Jokes Footer
+**Priority:** Low  
+**Description:** Display a random coffee-related joke in the sidebar footer to add humor and personality to the application.
+
+**Features:**
+- Footer section at the bottom of the sidebar
+- Displays a random joke from a collection of 15 coffee jokes
+- New random joke selected on each page load
+- Coffee-themed brown background (#6F4E37)
+- White italic text for readability
+- Jokes are family-friendly and coffee-related
+
+**Example Jokes:**
+- "How does a tech guy drink coffee? He installs Java!"
+- "Why did the coffee file a police report? It got mugged!"
+- "What do you call sad coffee? Despresso."
+
+**Visual Design:**
+- Background color: #6F4E37 (coffee brown)
+- Text color: White
+- Font size: 14px
+- Font style: Italic
+- Text alignment: Center
+- Padding: 15px 20px
+- Border: 2px solid #5a3d2b (darker brown) on top
+
+**Acceptance Criteria:**
+- Footer appears at the bottom of the sidebar
+- A random joke is displayed on page load
+- Joke text is readable and properly styled
+- Footer remains visible when sidebar is scrolled
+- Footer styling matches the application's coffee theme
+
+---
+
 ## Technical Specifications
 
 ### Tech Stack
@@ -381,7 +416,7 @@ filterState = {
 
 ### Module Structure
 
-**Total Files:** 8 JavaScript modules
+**Total Files:** 9 JavaScript modules
 
 1. **config.js** - Configuration constants and mutable state
 2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection, opening hours parsing)
@@ -390,20 +425,24 @@ filterState = {
 5. **map.js** - Leaflet map and marker management
 6. **geolocation.js** - Browser geolocation features
 7. **filters.js** - Location type filtering logic
-8. **main.js** - Application initialization and event wiring
+8. **favorites.js** - Favorites management and local storage
+9. **jokes.js** - Coffee jokes collection and random joke display
+10. **main.js** - Application initialization and event wiring
 
 **Dependency Graph:**
 ```
 main.js
 ├── config.js
 ├── utils.js
+├── jokes.js
 ├── map.js
 │   ├── config.js
 │   ├── utils.js
-│   ├── ui.js (uses utils.js)
+│   ├── ui.js (uses utils.js, favorites.js)
 │   └── api.js (uses config.js, utils.js)
 ├── geolocation.js (uses config.js)
-└── filters.js (uses config.js)
+├── filters.js (uses config.js)
+└── favorites.js
 ```
 
 ---
@@ -643,6 +682,17 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
 - Background: #F5F5F5
 - Border: 2px solid #DDD (right/bottom)
 - Overflow: Auto (vertical scroll)
+- Display: Flex column with footer at bottom
+
+**Sidebar Footer:**
+- Background: #6F4E37 (coffee brown)
+- Color: White
+- Padding: 15px 20px
+- Border-top: 2px solid #5a3d2b (darker brown)
+- Position: Sticky to bottom of sidebar (margin-top: auto)
+- Text alignment: Center
+- Font size: 14px
+- Font style: Italic
 
 **Map Container:**
 - Width: 65% (desktop), 100% (mobile)
