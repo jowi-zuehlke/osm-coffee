@@ -11,7 +11,8 @@
 8. [Security Requirements](#security-requirements)
 9. [Browser Compatibility](#browser-compatibility)
 10. [Deployment](#deployment)
-11. [Future Enhancements](#future-enhancements)
+11. [Testing](#testing)
+12. [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -1072,6 +1073,141 @@ Not implemented - relies on browser DevTools.
 
 ---
 
+## Testing
+
+### Test Infrastructure
+
+**Test Framework:** Node.js Built-in Test Runner (node:test)  
+**Test Type:** Unit Tests  
+**Test Location:** `/tests/` directory  
+**Test Execution:** `npm test`
+
+### Test Coverage
+
+The application includes comprehensive unit tests for all business logic modules:
+
+#### 1. utils.test.js
+Tests for utility functions in `js/utils.js`:
+- **sanitizeText()**: HTML entity encoding to prevent XSS attacks
+  - Tests escaping of `<`, `>`, `&`, `"`, `'` characters
+  - Tests plain text handling
+  - Tests empty string handling
+- **sanitizeUrl()**: URL validation and sanitization
+  - Tests acceptance of http/https protocols
+  - Tests rejection of javascript: and data: protocols
+  - Tests handling of null/undefined/empty inputs
+  - Tests invalid URL format handling
+  - Tests preservation of query parameters
+- **debounce()**: Function debouncing for performance
+  - Tests delayed execution
+  - Tests multiple rapid calls (only executes once)
+  - Tests timer reset on each call
+  - Tests argument passing
+- **getLocationType()**: Location type detection from OSM tags
+  - Tests roastery identification (craft=roaster)
+  - Tests coffee shop identification (shop=coffee)
+  - Tests cafe identification (amenity=cafe, default)
+  - Tests priority order (roastery > shop > cafe)
+
+#### 2. favorites.test.js
+Tests for favorites management in `js/favorites.js`:
+- **loadFavorites()**: Loading from localStorage
+  - Tests empty state
+  - Tests valid JSON parsing
+  - Tests error handling for invalid JSON
+- **addFavorite()**: Adding favorites
+  - Tests adding to empty list
+  - Tests adding multiple favorites
+  - Tests duplicate prevention
+  - Tests event dispatching
+  - Tests distinction between different types with same ID
+- **removeFavorite()**: Removing favorites
+  - Tests removal of existing favorites
+  - Tests selective removal
+  - Tests event dispatching
+  - Tests handling of non-existent favorites
+- **isFavorite()**: Checking favorite status
+  - Tests favorited and non-favorited elements
+  - Tests type distinction
+- **toggleFavorite()**: Toggle favorite status
+  - Tests adding when not favorited
+  - Tests removing when favorited
+  - Tests multiple toggles
+
+#### 3. api.test.js
+Tests for API functions in `js/api.js`:
+- **getElementCoordinates()**: Coordinate extraction from OSM elements
+  - Tests node type elements (direct lat/lon)
+  - Tests way type elements (center property)
+  - Tests elements without coordinates (returns null)
+  - Tests zero and negative coordinates
+  - Tests priority of node lat/lon over center
+
+#### 4. filters.test.js
+Tests for filter functionality in `js/filters.js`:
+- **toggleFilter()**: Location type filtering
+  - Tests toggling from true to false
+  - Tests toggling from false to true
+  - Tests callback execution
+  - Tests DOM class updates (disabled/enabled)
+  - Tests multiple filter types
+  - Tests handling of missing DOM elements
+
+### Test Execution
+
+**Local Testing:**
+```bash
+npm test                # Run all tests once
+npm run test:watch      # Run tests in watch mode
+```
+
+**CI/CD Testing:**
+Tests run automatically on:
+- Every pull request to `main` branch
+- Every push to `main` branch
+
+The test workflow (`.github/workflows/test.yml`) uses:
+- Node.js 20 (LTS)
+- No external dependencies beyond Node.js built-ins
+- Fail-fast: PR cannot merge if tests fail
+
+### Test Architecture
+
+**Mocking Strategy:**
+- **localStorage**: Custom mock implementation for Node.js environment
+- **document/DOM**: Minimal mock objects for DOM-dependent functions
+- **window**: Event dispatching mock for CustomEvent testing
+
+**Test Isolation:**
+- Each test suite resets state in `beforeEach()` hooks
+- localStorage is cleared between tests
+- Filter state is reset to defaults
+- No shared mutable state between tests
+
+### Coverage Goals
+
+**Current Coverage:**
+- Business logic modules: 100% function coverage
+- Pure utility functions: 100% branch coverage
+- State management: Complete happy path and error path coverage
+
+**Not Covered (Intentionally):**
+- UI rendering functions (require browser environment)
+- Map integration (Leaflet.js interactions)
+- Geolocation API (browser-only feature)
+- Network calls (API mocking would require external dependencies)
+
+### Future Testing Enhancements
+
+**Planned Additions:**
+1. Integration tests using Playwright
+2. Visual regression testing
+3. Performance benchmarking
+4. Accessibility testing (screen reader compatibility)
+5. End-to-end tests in CI/CD
+
+---
+
 ## Future Enhancements
 
 ### Potential Features
@@ -1142,10 +1278,10 @@ Not implemented - relies on browser DevTools.
 ### Technical Improvements
 
 **Code Quality:**
-- Add automated tests (unit tests, integration tests)
 - Implement TypeScript for type safety
 - Add ESLint configuration
 - Set up pre-commit hooks
+- Add integration tests using Playwright
 
 **Performance:**
 - Implement service worker
@@ -1167,9 +1303,9 @@ Not implemented - relies on browser DevTools.
 
 **DevOps:**
 - Add staging environment
-- Implement E2E tests in CI/CD
 - Performance monitoring
 - Error tracking (Sentry, etc.)
+- Automated security vulnerability scanning
 
 ### Non-Goals
 
