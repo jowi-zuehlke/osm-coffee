@@ -4,13 +4,16 @@
 
 import { CONFIG } from './config.js';
 import { debounce } from './utils.js';
-import { initMap } from './map.js';
+import { initMap, panToLocation } from './map.js';
 import { initGeolocation, showUserLocation } from './geolocation.js';
 import { initFilters } from './filters.js';
+import { loadFavorites } from './favorites.js';
+import { renderFavoritesList, showCafeDetails } from './ui.js';
+import { getElementCoordinates } from './api.js';
 
 /**
  * Initializes the application
- * Sets up the map, geolocation, filters, and event handlers
+ * Sets up the map, geolocation, filters, favorites, and event handlers
  */
 function init() {
     // Initialize map
@@ -35,6 +38,30 @@ function init() {
     document.getElementById('locationBtn').addEventListener('click', () => {
         showUserLocation(icons.userLocation);
     });
+    
+    /**
+     * Shows a cafe on the map by panning to it and displaying its details
+     * @param {Object} element - The OSM element to show
+     */
+    function showCafeOnMap(element) {
+        const coords = getElementCoordinates(element);
+        if (!coords) return;
+        
+        panToLocation(coords.lat, coords.lon);
+        showCafeDetails(element);
+    }
+    
+    // Initialize favorites
+    function updateFavoritesList() {
+        const favorites = loadFavorites();
+        renderFavoritesList(favorites, showCafeOnMap);
+    }
+    
+    // Initial render of favorites
+    updateFavoritesList();
+    
+    // Listen for favorites changes
+    window.addEventListener('favoritesChanged', updateFavoritesList);
 }
 
 // Initialize when DOM is ready
