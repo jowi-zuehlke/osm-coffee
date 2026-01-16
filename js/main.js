@@ -4,11 +4,12 @@
 
 import { CONFIG } from './config.js';
 import { debounce } from './utils.js';
-import { initMap } from './map.js';
+import { initMap, panToLocation } from './map.js';
 import { initGeolocation, showUserLocation } from './geolocation.js';
 import { initFilters } from './filters.js';
 import { loadFavorites } from './favorites.js';
-import { renderFavoritesList } from './ui.js';
+import { renderFavoritesList, showCafeDetails } from './ui.js';
+import { getElementCoordinates } from './api.js';
 
 /**
  * Initializes the application
@@ -16,7 +17,7 @@ import { renderFavoritesList } from './ui.js';
  */
 function init() {
     // Initialize map
-    const { map, updateCoffeeMarkers, icons, showCafeOnMap } = initMap();
+    const { map, updateCoffeeMarkers, icons } = initMap();
     
     // Initialize geolocation
     initGeolocation(map, icons.userLocation);
@@ -38,12 +39,22 @@ function init() {
         showUserLocation(icons.userLocation);
     });
     
+    /**
+     * Shows a cafe on the map by panning to it and displaying its details
+     * @param {Object} element - The OSM element to show
+     */
+    function showCafeOnMap(element) {
+        const coords = getElementCoordinates(element);
+        if (!coords) return;
+        
+        panToLocation(coords.lat, coords.lon);
+        showCafeDetails(element);
+    }
+    
     // Initialize favorites
     function updateFavoritesList() {
         const favorites = loadFavorites();
-        renderFavoritesList(favorites, (element) => {
-            showCafeOnMap(element);
-        });
+        renderFavoritesList(favorites, showCafeOnMap);
     }
     
     // Initial render of favorites

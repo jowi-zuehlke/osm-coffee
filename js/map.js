@@ -113,8 +113,7 @@ export function initMap() {
         updateCoffeeMarkers,
         getIconForType,
         icons,
-        panToLocation,
-        showCafeOnMap
+        panToLocation
     };
 }
 
@@ -129,16 +128,4 @@ export function panToLocation(lat, lon, zoom = null) {
     
     const targetZoom = zoom || Math.max(map.getZoom(), 16);
     map.setView([lat, lon], targetZoom, { animate: true });
-}
-
-/**
- * Shows a cafe on the map by panning to it and displaying its details
- * @param {Object} element - The OSM element to show
- */
-export function showCafeOnMap(element) {
-    const coords = getElementCoordinates(element);
-    if (!coords) return;
-    
-    panToLocation(coords.lat, coords.lon);
-    showCafeDetails(element);
 }
