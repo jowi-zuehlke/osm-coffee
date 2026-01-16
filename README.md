@@ -16,6 +16,24 @@ A single page application that displays an interactive map highlighting cafes an
 - 💬 Click markers for detailed information (name, hours, address, website)
 - 📱 Responsive design works on mobile and desktop
 
+## Project Structure
+```
+osm-coffee/
+├── index.html              # Main HTML file
+├── styles/
+│   └── main.css           # Application styles
+├── js/
+│   ├── main.js            # Main application initialization
+│   ├── config.js          # Configuration constants
+│   ├── utils.js           # Utility functions (sanitization, etc.)
+│   ├── ui.js              # UI functions (sidebar details display)
+│   ├── api.js             # OpenStreetMap API integration
+│   ├── map.js             # Map initialization and marker management
+│   ├── geolocation.js     # User location tracking
+│   └── filters.js         # Location type filtering
+└── README.md
+```
+
 ## How to Use
 1. Open `index.html` in a web browser
 2. Allow location access (optional) for a personalized starting view
@@ -23,7 +41,7 @@ A single page application that displays an interactive map highlighting cafes an
 4. Click on markers to see details about each cafe or roastery
 
 ## Running Locally
-Simply open the `index.html` file in your web browser, or serve it with any HTTP server:
+Serve the application with any HTTP server:
 
 ```bash
 # Using Python 3
@@ -35,12 +53,26 @@ npx http-server
 # Then open http://localhost:8080 in your browser
 ```
 
+**Note:** The application must be served via HTTP/HTTPS (not opened directly as a file) because it uses ES6 modules.
+
 ## Technology Stack
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
-- Leaflet.js (OpenStreetMap library)
+- JavaScript (ES6 Modules, Vanilla JS)
+- Leaflet.js (OpenStreetMap library, loaded via CDN)
 - Overpass API (OpenStreetMap data query)
+
+## Code Organization
+The codebase is organized into modular JavaScript files to improve maintainability and enable parallel development:
+
+- **config.js**: Centralized configuration (colors, timeouts, default locations)
+- **utils.js**: Reusable utility functions (sanitization, debouncing, type detection)
+- **ui.js**: All UI-related code (sidebar, detail rows, HTML generation)
+- **api.js**: API communication with Overpass (query building, data fetching)
+- **map.js**: Leaflet map initialization, marker creation and management
+- **geolocation.js**: Browser geolocation features
+- **filters.js**: Location type filtering logic
+- **main.js**: Application initialization and event wiring
 
 ## Data Source
 Coffee location data is fetched from OpenStreetMap via the Overpass API, querying for:

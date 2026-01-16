@@ -2,20 +2,39 @@
 
 ## Project Overview
 
-OSM Coffee is a single-page application that displays an interactive map highlighting cafes, coffee shops, and roasteries using OpenStreetMap data. The project emphasizes simplicity with a vanilla JavaScript implementation without build tools or dependencies.
+OSM Coffee is a single-page application that displays an interactive map highlighting cafes, coffee shops, and roasteries using OpenStreetMap data. The project uses vanilla JavaScript with ES6 modules organized into separate files for better maintainability and to enable parallel development by multiple agents.
 
 ## Technology Stack
 
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript (no frameworks)
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6 Modules, no frameworks)
 - **Map Library:** Leaflet.js v1.9.4 (loaded via CDN)
 - **Data Source:** OpenStreetMap via Overpass API
 - **Deployment:** GitHub Pages (static hosting)
+
+## Project Structure
+
+```
+osm-coffee/
+├── index.html              # Main HTML file
+├── styles/
+│   └── main.css           # Application styles
+├── js/
+│   ├── main.js            # Main application initialization
+│   ├── config.js          # Configuration constants
+│   ├── utils.js           # Utility functions (sanitization, etc.)
+│   ├── ui.js              # UI functions (sidebar details display)
+│   ├── api.js             # OpenStreetMap API integration
+│   ├── map.js             # Map initialization and marker management
+│   ├── geolocation.js     # User location tracking
+│   └── filters.js         # Location type filtering
+└── README.md
+```
 
 ## Development Workflow
 
 ### Running Locally
 
-The project can be run directly in a browser or with a simple HTTP server:
+The project must be served via HTTP/HTTPS (not opened directly as a file) because it uses ES6 modules:
 
 ```bash
 # Using Python 3
@@ -30,11 +49,13 @@ npx http-server
 ### Testing
 
 This is a simple static web application. Test manually by:
-1. Opening `index.html` in a web browser
-2. Checking that the map loads correctly
-3. Verifying that location detection works (with user permission)
-4. Testing marker interactions (click to see details)
-5. Confirming map pan/zoom updates markers dynamically
+1. Serving the application via HTTP server
+2. Opening http://localhost:8080 in a web browser
+3. Checking that the map loads correctly
+4. Verifying that location detection works (with user permission)
+5. Testing marker interactions (click to see details)
+6. Confirming map pan/zoom updates markers dynamically
+7. Testing filter toggles in the legend
 
 ## Code Conventions
 
@@ -42,21 +63,36 @@ This is a simple static web application. Test manually by:
 
 - **No Build Tools:** This project intentionally avoids build tools, bundlers, or package managers. Keep it simple.
 - **Vanilla JavaScript:** Do not introduce frameworks or libraries beyond Leaflet.js (which is already included).
-- **Single File:** The entire application is contained in `index.html`. Keep it that way for simplicity.
+- **Modular Structure:** Code is split across multiple JavaScript modules for maintainability and to avoid conflicts when multiple agents work on the code.
+- **ES6 Modules:** Use import/export statements for module dependencies.
 - **External Resources:** Load all external libraries from CDN with integrity hashes for security.
 
 ### JavaScript Style
 
 - Use modern JavaScript (ES6+) features where appropriate
+- Use ES6 modules with `import`/`export` for code organization
 - Use `const` and `let` instead of `var`
 - Prefer arrow functions for callbacks
 - Use template literals for string interpolation
 - Keep code readable with descriptive variable names
-- Add comments for complex logic, especially map interactions and API queries
+- Add JSDoc comments for functions, especially exported functions
+- Group related functions within the same module
+- Keep modules focused on a single responsibility
+
+### Module Organization
+
+- **config.js**: Configuration constants only (no logic)
+- **utils.js**: Pure utility functions (no DOM manipulation or side effects)
+- **ui.js**: UI-related functions (sidebar, detail display, HTML generation)
+- **api.js**: API communication (Overpass API queries)
+- **map.js**: Map and marker management
+- **geolocation.js**: Browser geolocation features
+- **filters.js**: Filter state and toggle logic
+- **main.js**: Application initialization and event wiring
 
 ### CSS Style
 
-- Use embedded `<style>` tags within the HTML file
+- Use separate CSS file in `styles/main.css`
 - Mobile-first responsive design approach
 - Use flexbox/grid for layouts where appropriate
 - Maintain the existing color scheme (coffee brown: #6F4E37)
@@ -90,7 +126,7 @@ The application uses the Overpass API to query for:
 The project is deployed automatically via GitHub Actions:
 - **Production:** Deploys from `main` branch to GitHub Pages
 - **Preview:** Creates preview deployments for pull requests
-- No build step required - direct deployment of `index.html`
+- No build step required - direct deployment of all static files
 
 ### Deployment Files
 
@@ -99,10 +135,10 @@ The project is deployed automatically via GitHub Actions:
 
 ## Important Restrictions
 
-- **Never add package.json or node_modules** - This is intentionally a zero-dependency project
+- **Never add package.json or node_modules** - This is intentionally a zero-dependency project (except Leaflet via CDN)
 - **Never add build tools** - No webpack, vite, parcel, or similar tools
-- **Never require compilation or transpilation** - Code must run directly in browsers
-- **Keep the single-file structure** - Do not split into multiple JS/CSS files
+- **Never require compilation or transpilation** - Code must run directly in browsers with native ES6 module support
+- **Maintain modular structure** - Keep code organized across separate files as described above
 - **Maintain CDN integrity hashes** - When updating external libraries, always include integrity attribute
 - **Do not commit secrets or API keys** - The Overpass API is public and requires no authentication
 
@@ -110,23 +146,48 @@ The project is deployed automatically via GitHub Actions:
 
 ### Adding a New Map Feature
 
-1. Locate the Leaflet.js initialization code
-2. Add new layer or marker logic within the existing map setup
-3. Test in multiple browsers for compatibility
-4. Ensure mobile responsiveness
+1. Identify the appropriate module (likely `map.js`)
+2. Add new function(s) following existing patterns
+3. Export the function if it needs to be used elsewhere
+4. Import and use in `main.js` or the relevant module
+5. Test in multiple browsers for compatibility
+6. Ensure mobile responsiveness
 
 ### Updating Styles
 
-1. Modify the embedded `<style>` section in `index.html`
+1. Modify `styles/main.css`
 2. Test on different screen sizes
 3. Maintain existing color scheme and visual consistency
 
 ### Modifying OpenStreetMap Queries
 
-1. Find the Overpass API query construction
+1. Edit the query construction in `api.js`
 2. Update query parameters following Overpass QL syntax
 3. Test query at https://overpass-turbo.eu/ before implementation
 4. Ensure proper error handling for API failures
+
+### Adding UI Features
+
+1. Add HTML markup to `index.html` if needed
+2. Add styling to `styles/main.css`
+3. Add UI logic to `ui.js`
+4. Wire up events in `main.js` or relevant module
+
+## Working with Multiple Agents
+
+The modular structure is designed to minimize conflicts when multiple agents work on the code:
+
+- Each module has a clear, focused responsibility
+- Modules communicate through well-defined exports/imports
+- Configuration is centralized in `config.js`
+- Utility functions are reusable from `utils.js`
+
+When working on a feature:
+1. Identify which module(s) need changes
+2. Make changes within the appropriate module
+3. Add new modules if the feature doesn't fit existing ones
+4. Update imports/exports as needed
+5. Test the integration
 
 ## Resources
 
@@ -134,3 +195,4 @@ The project is deployed automatically via GitHub Actions:
 - [OpenStreetMap Wiki](https://wiki.openstreetmap.org/)
 - [Overpass API Documentation](https://wiki.openstreetmap.org/wiki/Overpass_API)
 - [Live Application](https://jowi-zuehlke.github.io/osm-coffee/)
+- [MDN ES6 Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
