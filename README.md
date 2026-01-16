@@ -1,4 +1,7 @@
 # osm-coffee
+
+> **Note:** This is a side project for experimenting with GitHub Copilot and is not actively maintained.
+
 Map of ☕️ hotspots
 
 **[🌐 Live Preview](https://jowi-zuehlke.github.io/osm-coffee/)**
