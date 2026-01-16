@@ -101,6 +101,9 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 **Features:**
 - Query OpenStreetMap Overpass API for current map bounds
 - Debounced updates (500ms) to reduce API calls
+- **Request cancellation**: Automatic cancellation of in-flight requests when a new map movement occurs
+- **Client-side caching**: Responses cached by normalized bounding box and filter state with 10-minute TTL
+- **Cache invalidation**: Cache cleared when filters change to ensure accuracy
 - Loading indicator during data fetch
 - Automatic refresh when panning/zooming
 - Filters applied to API query
@@ -112,12 +115,22 @@ Provide coffee enthusiasts with an easy-to-use, privacy-friendly tool to discove
 - Nodes and ways with `shop=coffee`
 - Nodes and ways with `craft=roaster`
 
+**Caching Details:**
+- Cache keys normalized to 3 decimal places (~111m precision)
+- Maximum 50 cache entries (oldest entries removed when limit exceeded)
+- 10-minute Time-To-Live (TTL) for cache entries
+- Cache automatically cleaned up to prevent memory leaks
+- Revisiting areas within TTL provides instant results
+
 **Acceptance Criteria:**
 - Locations load within 5 seconds under normal conditions
 - Markers update after map movement stops for 500ms
 - Loading indicator appears during fetch
 - Error messages display when API fails
 - No duplicate markers for same location
+- Cached responses returned instantly (< 100ms)
+- Previous requests cancelled when panning/zooming quickly
+- Cache cleared when filters toggled
 
 ---
 
@@ -340,6 +353,8 @@ CONFIG = {
     OVERPASS_TIMEOUT: 30000,              // 30 seconds
     GEOLOCATION_TIMEOUT: 10000,           // 10 seconds
     MAP_MOVE_DEBOUNCE: 500,               // 500ms
+    CACHE_TTL: 600000,                    // 10 minutes (10 * 60 * 1000)
+    CACHE_MAX_SIZE: 50,                   // Maximum cache entries
     MARKER_SIZE: 32,                      // 32x32 pixels
     COLORS: {
         CAFE: '#8B4513',
@@ -360,16 +375,17 @@ filterState = {
 
 ### Module Structure
 
-**Total Files:** 8 JavaScript modules
+**Total Files:** 9 JavaScript modules
 
 1. **config.js** - Configuration constants and mutable state
 2. **utils.js** - Pure utility functions (sanitization, debouncing, type detection)
 3. **ui.js** - UI functions for sidebar and detail display
-4. **api.js** - Overpass API communication
-5. **map.js** - Leaflet map and marker management
-6. **geolocation.js** - Browser geolocation features
-7. **filters.js** - Location type filtering logic
-8. **main.js** - Application initialization and event wiring
+4. **api.js** - Overpass API communication with caching and request cancellation
+5. **cache.js** - Client-side caching with TTL and automatic cleanup
+6. **map.js** - Leaflet map and marker management
+7. **geolocation.js** - Browser geolocation features
+8. **filters.js** - Location type filtering logic
+9. **main.js** - Application initialization and event wiring
 
 **Dependency Graph:**
 ```
@@ -380,9 +396,14 @@ main.js
 │   ├── config.js
 │   ├── utils.js
 │   ├── ui.js (uses utils.js)
-│   └── api.js (uses config.js, utils.js)
+│   └── api.js
+│       ├── config.js
+│       ├── utils.js
+│       └── cache.js (uses config.js)
 ├── geolocation.js (uses config.js)
-└── filters.js (uses config.js)
+└── filters.js
+    ├── config.js
+    └── cache.js
 ```
 
 ---
@@ -411,12 +432,31 @@ out center;
 - Elements: Nodes and ways (not relations)
 
 **Response Processing:**
-1. Parse JSON response
-2. Extract elements array
-3. Filter by active filter state
-4. Validate coordinates exist
-5. Determine location type from tags
-6. Create markers for valid elements
+1. Generate cache key from bounds and filters
+2. Check cache for existing data
+3. If cache hit: Return cached data immediately
+4. If cache miss: Fetch from API
+5. Parse JSON response
+6. Extract elements array
+7. Filter by active filter state
+8. Validate coordinates exist
+9. Determine location type from tags
+10. Cache filtered results
+11. Create markers for valid elements
+
+**Request Cancellation:**
+- Each new request cancels any in-flight request
+- Uses AbortController API to abort fetch operations
+- Prevents race conditions from rapid map movements
+- Reduces wasted network traffic
+
+**Caching Strategy:**
+- Keys generated from normalized bounds (3 decimal precision)
+- Filter state included in cache key
+- Maximum 50 entries, oldest evicted when full
+- 10-minute TTL per entry
+- Automatic cleanup of expired entries
+- Cache cleared on filter changes
 
 **Error Handling:**
 - Network errors: Log to console, show error message
@@ -431,7 +471,7 @@ out center;
 
 1. **Fetch API**
    - Purpose: HTTP requests to Overpass API
-   - Features: POST requests, AbortController for timeout
+   - Features: POST requests, AbortController for timeout and cancellation
    - Fallback: None (required for operation)
 
 2. **Geolocation API**
@@ -455,15 +495,19 @@ out center;
 
 **Global Mutable State:**
 - `filterState` (config.js) - Location type visibility
+- `cache` (cache.js) - In-memory Map for API response caching
+- `currentAbortController` (api.js) - Active fetch request controller
 - `mapInstance` (map.js) - Leaflet map instance
 - `coffeeMarkers` (map.js) - Layer group for markers
 - `userLocationMarker` (geolocation.js) - User location marker
 
 **State Mutations:**
-- Filter toggles update `filterState`
+- Filter toggles update `filterState` and clear cache
 - Map initialization creates `mapInstance`
 - Marker updates replace `coffeeMarkers` layer group
 - Location detection updates `userLocationMarker`
+- Cache updates store/retrieve API responses
+- Request cancellation updates `currentAbortController`
 
 **State Synchronization:**
 - Filter changes trigger marker refresh
@@ -773,30 +817,26 @@ transition: background-color 0.2s;
 1. User pans/zooms map
 2. Leaflet fires `moveend` event
 3. Debounce timer starts (500ms)
-4. Timer completes, update triggered
-5. Current bounds calculated
-6. API query with new bounds
-7. Response parsed and filtered
-8. Old markers cleared
-9. New markers created and added
-
-**Marker Interaction:**
-1. User clicks marker
-2. Click handler extracts element data
-3. `showCafeDetails()` called with element
-4. Detail sections generated
-5. HTML sanitized
-6. Sidebar content updated
-7. Empty state removed
+4. Any in-flight request is cancelled via AbortController
+5. Timer completes, update triggered
+6. Current bounds calculated
+7. Cache key generated from bounds and filter state
+8. Cache checked for existing data
+9. If cache hit: Markers updated immediately
+10. If cache miss: API query with new bounds
+11. Response parsed, filtered, and cached
+12. Old markers cleared
+13. New markers created and added
 
 **Filter Toggle:**
 1. User clicks legend item
 2. `toggleFilter()` called
 3. Filter state updated in config
-4. Legend item styling updated
-5. Marker update callback triggered
-6. Existing data re-filtered
-7. Markers recreated based on new filter state
+4. Cache cleared (filter state changed)
+5. Legend item styling updated
+6. Marker update callback triggered
+7. Fresh API request with new filter state
+8. Markers recreated based on new filter state
 
 ---
 
@@ -833,8 +873,11 @@ transition: background-color 0.2s;
 **Network Optimization:**
 - Debounced API calls (500ms delay)
 - AbortController for request cancellation
+- Client-side caching with 10-minute TTL
+- Normalized cache keys to group nearby requests
 - Single API endpoint (no multiple requests)
 - Minimal query scope (viewport only)
+- Cache hit provides instant results (< 100ms)
 
 **Rendering Optimization:**
 - Layer groups for efficient marker management
@@ -844,18 +887,27 @@ transition: background-color 0.2s;
 
 **Memory Management:**
 - Old markers removed before creating new ones
+- Cache size limited to 50 entries with automatic eviction
+- Expired cache entries automatically cleaned up
 - No memory leaks from event listeners
 - Layer groups automatically manage marker lifecycle
 - No global state accumulation
 
 **Lazy Loading:**
 - Data fetched only when needed (viewport change)
+- Cache checked before network requests
 - Tiles load progressively (Leaflet default)
 - No preloading or prefetching
 
+**Caching Benefits:**
+- Reduced API load (fewer requests to Overpass API)
+- Instant revisit to cached areas
+- Better user experience during rapid navigation
+- Prevents rate limiting from excessive requests
+
 **Limitations:**
 - No service worker or offline support
-- No data caching
+- Cache cleared on page reload (in-memory only)
 - No virtual scrolling
 - No image optimization (uses emojis)
 
@@ -1179,9 +1231,30 @@ Tests for filter functionality in `js/filters.js`:
   - Tests toggling from true to false
   - Tests toggling from false to true
   - Tests callback execution
+  - Tests cache clearing on filter toggle
   - Tests DOM class updates (disabled/enabled)
   - Tests multiple filter types
   - Tests handling of missing DOM elements
+
+#### 5. cache.test.js
+Tests for client-side caching in `js/cache.js`:
+- **getCacheKey()**: Cache key generation
+  - Tests consistent key generation for same inputs
+  - Tests different keys for different bounds
+  - Tests different keys for different filters
+  - Tests coordinate rounding to 3 decimal places
+  - Tests filter key sorting for consistency
+- **setCache() and getFromCache()**: Cache storage and retrieval
+  - Tests storing and retrieving data
+  - Tests null return for non-existent keys
+  - Tests null return for expired entries (TTL)
+  - Tests multiple cache entries
+  - Tests cache size limiting (max 50 entries)
+- **clearCache()**: Cache invalidation
+  - Tests removal of all entries
+- **getCacheStats()**: Cache statistics
+  - Tests correct statistics reporting
+  - Tests expired entry counting
 
 ### Test Execution
 

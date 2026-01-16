@@ -17,6 +17,10 @@ export const CONFIG = {
     // Debounce delay for map movements (milliseconds)
     MAP_MOVE_DEBOUNCE: 500,
     
+    // Cache settings
+    CACHE_TTL: 10 * 60 * 1000, // 10 minutes in milliseconds
+    CACHE_MAX_SIZE: 50, // Maximum number of cache entries
+    
     // Icon sizes
     MARKER_SIZE: 32,
     
