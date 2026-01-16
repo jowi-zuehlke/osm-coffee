@@ -61,20 +61,17 @@ function init() {
     const heatmapToggleBtn = document.getElementById('heatmapToggle');
     if (heatmapToggleBtn) {
         heatmapToggleBtn.addEventListener('click', () => {
-            const elements = getLastFetchedElements();
-            
-            // First update the heatmap data
-            if (elements && elements.length > 0) {
-                updateHeatmapData(elements);
-            }
-            
-            // Then toggle visibility
+            // Toggle visibility first to know the new state
             const isActive = toggleHeatmap();
             
             if (isActive) {
                 heatmapToggleBtn.classList.add('active');
-                // If no data, show a console message for debugging
-                if (!elements || elements.length === 0) {
+                // Update heatmap data after it's been added to the map
+                const elements = getLastFetchedElements();
+                if (elements && elements.length > 0) {
+                    updateHeatmapData(elements);
+                } else {
+                    // If no data, show a console message for debugging
                     console.log('Heatmap activated but no data available yet. Pan/zoom the map to load data.');
                 }
             } else {
