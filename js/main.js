@@ -10,6 +10,7 @@ import { initFilters } from './filters.js';
 
 /**
  * Initializes the application
+ * Sets up the map, geolocation, filters, and event handlers
  */
 function init() {
     // Initialize map

@@ -40,9 +40,10 @@ export function sanitizeUrl(url) {
  */
 export function debounce(func, delay) {
     let debounceTimer;
-    return function() {
+    return function(...args) {
+        const context = this;
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(func, delay);
+        debounceTimer = setTimeout(() => func.apply(context, args), delay);
     };
 }
 

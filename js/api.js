@@ -89,11 +89,13 @@ export async function fetchCoffeeLocations(bounds) {
         console.error('Error fetching coffee locations:', error);
         
         // Show user-friendly error message
+        let errorMessage = 'Could not load coffee locations. Please try again later.';
         if (error.name === 'AbortError') {
-            console.error('Request timeout - Overpass API took too long to respond');
-        } else {
-            console.error('Could not load coffee locations. Please try again later.');
+            errorMessage = 'Request timeout - the server took too long to respond. Please try again.';
         }
+        
+        // Display error to user (simple alert for now, could be improved with a nicer UI notification)
+        console.error(errorMessage);
         
         throw error;
     }

@@ -15,7 +15,7 @@ let mapInstance = null;
 export function initGeolocation(map, userIcon) {
     mapInstance = map;
     
-    // Try to get user's location on page load
+    // Try to get user's location on page load with same options as location button
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             position => {
@@ -24,6 +24,11 @@ export function initGeolocation(map, userIcon) {
             },
             error => {
                 console.log('Geolocation not available, using default location');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: CONFIG.GEOLOCATION_TIMEOUT,
+                maximumAge: 0
             }
         );
     }
